@@ -1,5 +1,5 @@
 import uvicorn
-from app.config import get_settings
+from app.env_settings import get_settings
 from fastapi import FastAPI
 
 settings = get_settings()
