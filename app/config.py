@@ -13,6 +13,7 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -38,10 +39,17 @@ class Settings(BaseSettings):
     APP_NAME: str = "MKIT_WRAPPER"
     APP_VERSION: str = version
     ADM_ID: uuid.UUID = uuid.UUID("00000000-0000-0000-0000-000000000000")
-    JWT_SECRET_KEY: str
-    JWT_ALGORITHM: str
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int
+    JWT_SECRET_KEY: str = "test key jwt"
+    JWT_ALGORITHM: str = "test algorithm"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     DB_URL: str = "sqlite+aiosqlite:///./mkit.db"
+
+    @field_validator("APP_ENV", mode="before")
+    @classmethod
+    def normalize_env(cls, v: str) -> str:
+        if isinstance(v, str):
+            v = v.upper()
+        return v
 
 
 @lru_cache
