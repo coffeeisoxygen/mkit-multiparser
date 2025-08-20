@@ -7,9 +7,6 @@ handlers:
     diagnose: true
     backtrace: true
 
-# extra:
-#   username: env://APP_ENV
-
 activation:
   - ["my_module.secret", false]
   - ["another_library.module", true]
