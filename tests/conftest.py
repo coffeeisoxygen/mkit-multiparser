@@ -1,7 +1,7 @@
 """test configuration."""
 
 import pytest
-from app.env_settings import get_settings
+from app.config import get_settings
 from loguru import logger
 
 
