@@ -1,7 +1,9 @@
 import inspect
 import logging
+from pathlib import Path
 
 from loguru import logger
+from loguru_config import LoguruConfig
 
 
 class InterceptHandler(logging.Handler):
@@ -25,3 +27,6 @@ class InterceptHandler(logging.Handler):
 
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+
+logyamlpath = Path(__file__).parent.parent.parent / "logconfig.yaml"
+config = LoguruConfig.load(logyamlpath)
