@@ -291,15 +291,6 @@ wheels = [
 ]
 
 [[package]]
-name = "loguru-config"
-version = "0.1.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "loguru" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/2e/c7/e9528e9439214e885ce04fb68725ee1d10d64f333a9d68c9ea1545089cab/loguru-config-0.1.0.tar.gz", hash = "sha256:432fbc134b118cdfbe0de0226eaab3f5247fc142cd005bf1ebe471f7c572aa34", size = 15129, upload-time = "2023-07-15T11:55:48.381Z" }
-
-[[package]]
 name = "markdown-it-py"
 version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -354,7 +345,6 @@ source = { editable = "." }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "loguru" },
-    { name = "loguru-config" },
     { name = "pydantic-settings" },
 ]
 
@@ -372,7 +362,6 @@ dev = [
 requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.116.1" },
     { name = "loguru", specifier = ">=0.7.3" },
-    { name = "loguru-config", specifier = ">=0.1.0" },
     { name = "pydantic-settings", specifier = ">=2.10.1" },
 ]
 
