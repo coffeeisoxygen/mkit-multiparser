@@ -1,0 +1,1 @@
+REM $env:APP_ENV="DEVELOPMENT"

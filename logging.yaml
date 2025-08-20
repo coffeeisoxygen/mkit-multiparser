@@ -1,0 +1,15 @@
+handlers:
+  - sink: ext://sys.stdout
+    level: INFO
+    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> |  <level>{message}</level> | <l>{extra}</>"
+    enqueue: true
+    colorize: true
+    diagnose: true
+    backtrace: true
+
+# extra:
+#   username: env://APP_ENV
+
+activation:
+  - ["my_module.secret", false]
+  - ["another_library.module", true]
