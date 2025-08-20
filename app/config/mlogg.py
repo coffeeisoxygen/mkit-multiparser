@@ -5,6 +5,8 @@ from pathlib import Path
 from loguru import logger
 from loguru_config import LoguruConfig
 
+from app.config.logpatch import redact_password
+
 
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
@@ -33,3 +35,10 @@ logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 logyamlpath = Path(__file__).parent.parent.parent / "logging.yaml"
 
 config = LoguruConfig.load(logyamlpath)
+if config is not None:
+    config.parse().configure()  # type: ignore
+    logger = logger.patch(redact_password)
+else:
+    logger.warning(
+        f"Loguru config not loaded from {logyamlpath}, using default logger configuration."
+    )
