@@ -5,6 +5,8 @@ from pathlib import Path
 from loguru import logger
 from loguru_config import LoguruConfig
 
+from app.config.core import get_settings
+
 
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
@@ -28,5 +30,24 @@ class InterceptHandler(logging.Handler):
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
+
+def hide_sensitive_data(record):
+    # Mask credit card numbers
+    import re
+
+    record["message"] = re.sub(
+        r"\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b",
+        "XXXX-XXXX-XXXX-XXXX",
+        record["message"],
+    )
+    # Mask email addresses
+    record["message"] = re.sub(
+        r"\b[\w.-]+@[\w.-]+\.\w+\b", "***@***.***", record["message"]
+    )
+
+
 logyamlpath = Path(__file__).parent.parent.parent / "logconfig.yaml"
-config = LoguruConfig.load(logyamlpath)
+logconfig = LoguruConfig.load(logyamlpath)
+# sampai sini maka obj logger sudah ada setup nya , kita overide dsini
+overenv = get_settings().APP_ENV.value
+logger.configure(extra={"env": overenv}, patcher=hide_sensitive_data)
