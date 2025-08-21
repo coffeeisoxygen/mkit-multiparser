@@ -7,8 +7,6 @@ from app.utils.mlogg.utils import masking_patcher
 from loguru import logger
 from loguru_config import LoguruConfig
 
-logconfigpath = Path(__file__).parent.parent.parent.parent / "logconfig.yaml"
-
 
 class InterceptHandler(logging.Handler):
     """Handler to intercept standard logging and forward to loguru.
@@ -68,7 +66,5 @@ def configure_logging(config_path: str | Path) -> None:
         patcher=lambda record: patcher_wrapper(
             record=record,  # pyright: ignore[reportArgumentType]
             masking_config=dict_maskingsetup,
-            # exception_config=dict_exception_setup,
-            # traceback_config=dict_traceback_setup,
         ),
     ).configure()
