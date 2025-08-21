@@ -12,9 +12,10 @@ activation:
   - ["my_module.secret", false]
   - ["another_library.module", true]
 
-regex_patterns:
-  credit_card: "\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b"
-  email: "\\b[\\w.-]+@[\\w.-]+\\.\\w+\\b"
-# default_mask: "****************"
-# mask_on_env: ["production"]
-# mask_fields: ["password", "token", "secret"]
+masking:
+  enabled: true
+  default_mask: "*************"
+  mask_regex:
+    credit_card: "\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b"
+    email: "\\b[\\w.-]+@[\\w.-]+\\.\\w+\\b"
+  mask_fields: ["password", "token", "secret"]
