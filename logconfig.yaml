@@ -38,4 +38,5 @@ extra:
 
 activation:
   - ["uvicorn.watchfiles", false]
+  - ["watchfiles", false]
   - ["another_library.module", true]
