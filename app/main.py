@@ -4,8 +4,13 @@ from pathlib import Path
 import uvicorn
 from app._version import __version__ as version
 from app.config import get_settings
-from app.custom import LoggingMiddleware, setup_cors, setup_lifespan
-from app.custom.ip_filtering import IPFilter, ip_protected
+from app.custom import (
+    IPFilter,
+    LoggingMiddleware,
+    ip_protected,
+    setup_cors,
+    setup_lifespan,
+)
 from app.exception import AppExceptionError
 from app.utils.mlogg import configure_logging
 from fastapi import FastAPI, Request
@@ -17,7 +22,9 @@ settings = get_settings()
 # logging need env values , optional can be moved if needed
 logconfigpath = Path(__file__).parent.parent / "logconfig.yaml"
 configure_logging(logconfigpath, settings.APP_ENV.value)
-
+# Filtering IP
+BLOCKED_IPS_DATA_ENDPOINT = ["127.0.0.1"]
+ip_filter_data_endpoint = IPFilter(blocked_ips=set(BLOCKED_IPS_DATA_ENDPOINT))
 # Main FastAPI Application
 app = FastAPI(
     title=settings.APP_NAME,
@@ -46,11 +53,18 @@ async def root():  # noqa: D103
     return {"message": "Hello World"}
 
 
-# demo ip filtering
+# demo ip filtering mode direct IP Assignment
 @app.get("/debug")
 @ip_protected(IPFilter(allowed_ips={"10.0.0.1"}))
-async def debug_endpoint():  # noqa: D103
+async def debug_endpoint(request: Request):  # noqa: D103
     return {"message": "This is a debug endpoint"}
+
+
+# demo Ip filtering Based On Blocked List
+@app.get("/blocked")
+@ip_protected(ip_filter_data_endpoint)
+async def blocked_endpoint():  # noqa: D103
+    return {"message": "This is a blocked endpoint"}
 
 
 if __name__ == "__main__":

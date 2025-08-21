@@ -1,8 +1,8 @@
 from collections.abc import Callable
 from functools import wraps
 
-from app.exception.exceptions import RequestValidationError
-from fastapi import HTTPException, Request
+from app.exception.exceptions import IPBlockedError, RequestValidationError
+from fastapi import Request
 from loguru import logger
 
 
@@ -59,10 +59,8 @@ def ip_protected(ip_filter: IPFilter):
                 logger.warning(
                     f"Blokir request dari IP: {client_ip} di endpoint {func.__name__}"
                 )
-                raise HTTPException(
-                    status_code=403,
-                    detail="Forbidden: IP address tidak diizinkan di endpoint ini.",
-                )
+                # Ensure ip is always a string
+                raise IPBlockedError(ip=client_ip or "unknown", endpoint=func.__name__)
 
             return await func(*args, **kwargs)
 
