@@ -1,7 +1,7 @@
 handlers:
   - sink: ext://sys.stderr
-    format: "[{time}] {message}"
-  - sink: file.log
+    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> |  <level>{message}</level> | <l>{extra}</>"
+  - sink: ./logs/file.log
     enqueue: true
     serialize: true
 # levels:
@@ -10,7 +10,7 @@ handlers:
 #     icon: ¤
 #     color: ""
 extra:
-  common_to_all: default
+  env: env://APP_ENV
 activation:
   - ["my_module.secret", false]
   - ["another_library.module", true]
