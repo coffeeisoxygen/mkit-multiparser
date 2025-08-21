@@ -1,11 +1,6 @@
 import re
 from typing import Any
 
-try:
-    import stackprinter
-except ImportError:
-    stackprinter = None
-
 
 def mask_message(msg: str, mask_regex: dict[str, str], mask_value: str) -> str:
     """Mask sensitive patterns in log message."""
@@ -46,41 +41,3 @@ def masking_patcher(record: Any, masking: dict[str, Any]) -> None:
             record["extra"] = mask_extra(
                 record["extra"], mask_fields, mask_regex, mask_value
             )
-
-
-# def exception_patcher(record: Any, exception_format: dict[str, Any]) -> None:
-#     """Apply exception formatting to log record based on config."""
-#     if exception_format and exception_format.get("enabled"):
-#         exc = record.get("exception")
-#         if exc is not None:
-#             style = "plaintext"
-#             if exception_format.get("use_stackprinter") and stackprinter:
-#                 try:
-#                     record["extra"]["stack"] = stackprinter.format(exc, style=style)
-#                 except Exception as e:
-#                     # Fallback ke traceback standar jika stackprinter gagal
-#                     record["extra"]["stack"] = (
-#                         f"Stackprinter failed: {e}\n\n"
-#                         + "\n".join(
-#                             traceback.format_exception(
-#                                 type(exc), exc, exc.__traceback__
-#                             )
-#                         )
-#                     )
-#             else:
-#                 record["extra"]["stack"] = "\n" + "".join(
-#                     traceback.format_exception(type(exc), exc, exc.__traceback__)
-#                 )
-
-
-# def traceback_patcher(record: Any, traceback_format: dict[str, Any]) -> None:
-#     """Inject traceback only if with_traceback=True in extra (explicit)."""
-#     # Pastikan extra selalu dict
-#     if "extra" not in record or not isinstance(record["extra"], dict):
-#         record["extra"] = {}
-#     if (
-#         traceback_format
-#         and traceback_format.get("enabled")
-#         and record["extra"].get("with_traceback") is True
-#     ):
-#         record["extra"]["traceback"] = "\n" + "".join(traceback.format_stack())

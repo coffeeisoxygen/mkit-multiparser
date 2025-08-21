@@ -30,21 +30,6 @@ class InterceptHandler(logging.Handler):
         )
 
 
-# def patcher_wrapper(
-#     record: logging.LogRecord,
-#     masking_config: dict | None = None,
-#     exception_config: dict | None = None,
-#     traceback_config: dict | None = None,
-# ) -> None:
-#     """Wrapper agar semua patcher config bisa diakses oleh patcher."""
-#     if masking_config is not None:
-#         masking_patcher(record, masking_config)
-#     if exception_config is not None:
-#         exception_patcher(record, exception_config)
-#     if traceback_config is not None:
-#         traceback_patcher(record, traceback_config)
-
-
 def patcher_wrapper(
     record: logging.LogRecord,
     masking_config: dict | None = None,
