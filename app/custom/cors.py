@@ -3,7 +3,7 @@
 # Path To Setup
 from typing import Any
 
-from app.config.settings import cfg_cors
+from app.config import cfg_cors
 from fastapi.middleware.cors import CORSMiddleware
 
 a_origins = cfg_cors.ConfigCors().allow_origins
