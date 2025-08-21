@@ -37,22 +37,22 @@ traceback_format:
 handlers:
   # Handler utama untuk info/debug (tanpa traceback/stackprinter)
   - sink: ext://sys.stdout
-    level: "INFO"
+    level: "DEBUG"
     format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level> | <l>{extra}</>"
     enqueue: true
     diagnose: false
     backtrace: false
     # filter: "lambda record: record['level'].no < 40" # hanya untuk level < ERROR
 
-  # # Handler khusus untuk error/exception (dengan stackprinter/traceback)
-  # - sink: ext://sys.stderr
-  #   level: "ERROR"
-  #   # format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level> | {extra[stack]}"
-  #   format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level>"
-  #   enqueue: true
-  #   diagnose: true
-  #   backtrace: true
-  #   # filter: "lambda record: record['level'].no >= 40" # hanya untuk level ERROR dan ke atas
+  # Handler khusus untuk error/exception (dengan stackprinter/traceback)
+  - sink: ext://sys.stderr
+    level: "ERROR"
+    # format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level> | {extra[stack]}"
+    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level>"
+    enqueue: true
+    diagnose: true
+    backtrace: true
+    # filter: "lambda record: record['level'].no >= 40" # hanya untuk level ERROR dan ke atas
 
 extra:
   env: "override me please"

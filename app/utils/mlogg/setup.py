@@ -74,7 +74,7 @@ def configure_logging(config_path: str | Path) -> None:
         patcher=lambda record: patcher_wrapper(
             record=record,  # pyright: ignore[reportArgumentType]
             masking_config=dict_maskingsetup,
-            # exception_config=dict_exception_setup,
+            exception_config=dict_exception_setup,
             # traceback_config=dict_traceback_setup,
         ),  # type: ignore
     ).configure()
