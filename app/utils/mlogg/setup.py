@@ -37,7 +37,7 @@ def patcher_wrapper(
         masking_patcher(record, masking_config)
 
 
-def configure_logging(config_path: str | Path) -> None:
+def configure_logging(config_path: str | Path, env: str = "development") -> None:
     """Setup logging: intercept stdlib, propagate loggers, masking, exception, traceback, and loguru config.
 
     Args:
@@ -62,7 +62,7 @@ def configure_logging(config_path: str | Path) -> None:
 
     LoguruConfig.load(config_or_file=config_dict, configure=True)
     LoguruConfig(
-        extra={"env": "test masking"},
+        extra={"env": env},
         patcher=lambda record: patcher_wrapper(
             record=record,  # pyright: ignore[reportArgumentType]
             masking_config=dict_maskingsetup,
