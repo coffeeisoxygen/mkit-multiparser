@@ -63,7 +63,7 @@ async def debug_endpoint(request: Request):  # noqa: D103
 # demo Ip filtering Based On Blocked List
 @app.get("/blocked")
 @ip_protected(ip_filter_data_endpoint)
-async def blocked_endpoint():  # noqa: D103
+async def blocked_endpoint(request: Request):  # noqa: D103
     return {"message": "This is a blocked endpoint"}
 
 
