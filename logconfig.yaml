@@ -37,7 +37,7 @@ handlers:
 
 extra:
   env: "override me please"
-
+# silent log from certain libraries
 activation:
   - ["uvicorn.watchfiles", false]
   - ["watchfiles", false]
