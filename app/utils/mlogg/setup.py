@@ -68,13 +68,13 @@ def configure_logging(config_path: str | Path) -> None:
             if "level_to_pass" in dict_propogate_setup:
                 logging_logger.setLevel(dict_propogate_setup["level_to_pass"])
 
-    LoguruConfig.load(config_or_file=config_dict)
+    LoguruConfig.load(config_or_file=config_dict, configure=True)
     LoguruConfig(
         extra={"env": "test masking"},
         patcher=lambda record: patcher_wrapper(
             record=record,  # pyright: ignore[reportArgumentType]
             masking_config=dict_maskingsetup,
-            # exception_config=dict_exception_setup,
+            exception_config=dict_exception_setup,
             # traceback_config=dict_traceback_setup,
         ),  # type: ignore
     ).configure()

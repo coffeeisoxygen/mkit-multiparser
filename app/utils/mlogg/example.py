@@ -1,4 +1,7 @@
-"""Example usage of mlogg patchers and decorator."""
+"""Example usage of mlogg patchers and decorator.
+
+Demonstrates both normal logging and exception logging using loguru.
+"""
 
 from pathlib import Path
 
@@ -9,15 +12,24 @@ logconfigpath = Path(__file__).parent.parent.parent.parent / "logconfig.yaml"
 configure_logging(logconfigpath)
 
 
-# sample traceback happened
-def main(x):
-    # sample exception happened
+def normal_case():
+    """Logs a normal info message."""
+    logger.info("Normal case executed successfully.")
+
+
+def exception_case(x: int):
+    """Logs an exception if division by zero occurs.
+
+    Args:
+        x (int): Denominator for division.
+    """
     try:
-        1 / x
+        result = 10 / x
+        logger.info(f"Division result: {result}")
     except ZeroDivisionError:
-        logger.exception("Oups...")
-        return  # <-- ini penting!
+        logger.exception("Exception case: Division by zero occurred.")
 
 
 if __name__ == "__main__":
-    main(0)
+    normal_case()
+    exception_case(0)
