@@ -4,8 +4,9 @@ from fastapi import FastAPI
 from loguru import logger
 
 from app.config import get_settings
-from app.config.lifespan import app_lifespan
+from app.config.lifespan import app_lifespan, configure_logging
 
+configure_logging()
 logger.info("Starting application...")
 logger.info("User paid with card 4532-1234-5678-9012")
 logger.info("Contact email: john.doe@example.com")

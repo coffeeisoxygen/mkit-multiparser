@@ -1,3 +1,5 @@
+import inspect
+import logging
 from pathlib import Path
 
 import yaml
@@ -18,26 +20,29 @@ def patcher_wrapper(record):
     masking_patcher(record, dict_maskingsetup)
 
 
-LoguruConfig.load(config_or_file=config_dict)
-LoguruConfig(extra={"env": "test masking"}, patcher=patcher_wrapper).configure()
+class InterceptHandler(logging.Handler):
+    """Handler to intercept standard logging and forward to loguru.
+
+    Use this to unify stdlib logging and loguru output.
+    """
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        frame, depth = inspect.currentframe(), 0
+        while frame and (depth == 0 or frame.f_code.co_filename == logging.__file__):
+            frame = frame.f_back
+            depth += 1
+
+        logger.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )
 
 
-def main():
-    logger.info("test with credit card pattern in meesage 4532-1234-5678-9012")
-    logger.info("test with email card pattern in message john.doe@example.com")
-    logger.info("test with password pattern in message password: 123456")
-    logger.info("test with token pattern in message token: 1903907190712")
-    # sampling jika ada di field extra
-    logger.bind(
-        extra={
-            "user_id": "12345",
-            "email": "john.doe@example.com",
-            "card": "4532-1234-5678-9012",
-            "token": "1903907190712",
-            "password": "Password123456",
-        }
-    ).info("Payment processed successfully.")
-
-
-if __name__ == "__main__":
-    main()
+def configure_logging() -> None:
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+    LoguruConfig.load(config_or_file=config_dict)
+    LoguruConfig(extra={"env": "test masking"}, patcher=patcher_wrapper).configure()
