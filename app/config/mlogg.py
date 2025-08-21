@@ -47,23 +47,23 @@ regex_patterns = config_dict.pop("regex_patterns", {})
 logconfig = LoguruConfig.load(config_dict)
 # --- Akhir Bagian yang diperbarui ---
 
-
-def hide_sensitive_data(record) -> None:
-    """Prevent from leaking sensitive data using dynamic regex."""
-    # Gunakan pola regex yang dimuat dari kamus regex_patterns
-    record["message"] = re.sub(
-        regex_patterns.get(
-            "credit_card", r""
-        ),  # Gunakan .get() untuk keamanan jika kunci tidak ada
-        "XXXX-XXXX-XXXX-XXXX",
-        record["message"],
-    )
-    record["message"] = re.sub(
-        regex_patterns.get("email", r""),  # Gunakan .get() untuk keamanan
-        "***@***.***",
-        record["message"],
-    )
-
-
 overenv = get_settings().APP_ENV.value
+masking_enabled = overenv == "PRODUCTION"
+
+
+def hide_sensitive_data(record) -> None:  # noqa: ANN001
+    """Prevent from leaking sensitive data using dynamic regex only in PRODUCTION."""
+    if masking_enabled:
+        record["message"] = re.sub(
+            regex_patterns.get("credit_card", r""),
+            "XXXX-XXXX-XXXX-XXXX",
+            record["message"],
+        )
+        record["message"] = re.sub(
+            regex_patterns.get("email", r""),
+            "***@***.***",
+            record["message"],
+        )
+
+
 logger.configure(extra={"env": overenv}, patcher=hide_sensitive_data)
