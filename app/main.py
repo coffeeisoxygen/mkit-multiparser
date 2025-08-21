@@ -2,12 +2,11 @@
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI
-from loguru import logger
-
 from app.config import get_settings
 from app.config.lifespan import app_lifespan
 from app.utils.mlogg.setup import configure_logging
+from fastapi import FastAPI
+from loguru import logger
 
 logconfigpath = Path(__file__).parent.parent / "logconfig.yaml"
 configure_logging(logconfigpath)

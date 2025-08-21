@@ -25,14 +25,6 @@ propogate:
       "starlette",
     ]
 
-#TODO: Masalah Exception Nanti Pikirin Lagi , yang penting udah ada bayang bayang
-exception_format:
-  enabled: true
-  use_stackprinter: true
-  diagnose: true
-traceback_format:
-  enabled: true
-
 # Loguru Default Config
 handlers:
   # Handler utama untuk info/debug (tanpa traceback/stackprinter)

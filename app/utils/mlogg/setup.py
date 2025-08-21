@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 
 import yaml
-from app.utils.mlogg.utils import exception_patcher, masking_patcher, traceback_patcher
+from app.utils.mlogg.utils import masking_patcher
 from loguru import logger
 from loguru_config import LoguruConfig
 
@@ -30,19 +30,28 @@ class InterceptHandler(logging.Handler):
         )
 
 
+# def patcher_wrapper(
+#     record: logging.LogRecord,
+#     masking_config: dict | None = None,
+#     exception_config: dict | None = None,
+#     traceback_config: dict | None = None,
+# ) -> None:
+#     """Wrapper agar semua patcher config bisa diakses oleh patcher."""
+#     if masking_config is not None:
+#         masking_patcher(record, masking_config)
+#     if exception_config is not None:
+#         exception_patcher(record, exception_config)
+#     if traceback_config is not None:
+#         traceback_patcher(record, traceback_config)
+
+
 def patcher_wrapper(
     record: logging.LogRecord,
     masking_config: dict | None = None,
-    exception_config: dict | None = None,
-    traceback_config: dict | None = None,
 ) -> None:
     """Wrapper agar semua patcher config bisa diakses oleh patcher."""
     if masking_config is not None:
         masking_patcher(record, masking_config)
-    if exception_config is not None:
-        exception_patcher(record, exception_config)
-    if traceback_config is not None:
-        traceback_patcher(record, traceback_config)
 
 
 def configure_logging(config_path: str | Path) -> None:
@@ -56,8 +65,8 @@ def configure_logging(config_path: str | Path) -> None:
 
     dict_maskingsetup = config_dict.pop("masking", {})
     dict_propogate_setup = config_dict.pop("propogate", {})
-    dict_exception_setup = config_dict.pop("exception_format", {})
-    dict_traceback_setup = config_dict.pop("traceback_format", {})
+    # dict_exception_setup = config_dict.pop("exception_format", {})
+    # dict_traceback_setup = config_dict.pop("traceback_format", {})
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
     if dict_propogate_setup.get("enabled", False):
@@ -74,7 +83,7 @@ def configure_logging(config_path: str | Path) -> None:
         patcher=lambda record: patcher_wrapper(
             record=record,  # pyright: ignore[reportArgumentType]
             masking_config=dict_maskingsetup,
-            exception_config=dict_exception_setup,
+            # exception_config=dict_exception_setup,
             # traceback_config=dict_traceback_setup,
-        ),  # type: ignore
+        ),
     ).configure()
