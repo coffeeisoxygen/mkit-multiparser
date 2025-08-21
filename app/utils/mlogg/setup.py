@@ -9,16 +9,6 @@ from loguru_config import LoguruConfig
 
 logconfigpath = Path(__file__).parent.parent.parent.parent / "logconfig.yaml"
 
-with open(logconfigpath, encoding="utf-8") as file:
-    config_dict = yaml.safe_load(file)
-
-dict_maskingsetup = config_dict.pop("masking", {})
-
-
-def patcher_wrapper(record):
-    """Wrapper agar masking config bisa diakses oleh patcher."""
-    masking_patcher(record, dict_maskingsetup)
-
 
 class InterceptHandler(logging.Handler):
     """Handler to intercept standard logging and forward to loguru.
@@ -31,18 +21,49 @@ class InterceptHandler(logging.Handler):
             level = logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
-
         frame, depth = inspect.currentframe(), 0
         while frame and (depth == 0 or frame.f_code.co_filename == logging.__file__):
             frame = frame.f_back
             depth += 1
-
         logger.opt(depth=depth, exception=record.exc_info).log(
             level, record.getMessage()
         )
 
 
-def configure_logging() -> None:
+def patcher_wrapper(
+    record: logging.LogRecord, masking_config: dict | None = None
+) -> None:
+    """Wrapper agar masking config bisa diakses oleh patcher."""
+    # masking_config harus di-pass dari configure_logging
+    if masking_config is None:
+        raise ValueError("masking_config must be provided to patcher_wrapper")
+    masking_patcher(record, masking_config)
+
+
+def configure_logging(config_path: str | Path) -> None:
+    """Setup logging: intercept stdlib, propagate loggers, masking, and loguru config.
+
+    Args:
+        config_path: Path to YAML config file.
+    """
+    with open(config_path, encoding="utf-8") as file:
+        config_dict = yaml.safe_load(file)
+
+    dict_maskingsetup = config_dict.pop("masking", {})
+    dict_propogate_setup = config_dict.pop("propogate", {})
+
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+
+    if dict_propogate_setup.get("enabled", False):
+        for logger_name in dict_propogate_setup.get("loggers_name", []):
+            logging_logger = logging.getLogger(logger_name)
+            logging_logger.handlers = []
+            logging_logger.propagate = True
+            if "level_to_pass" in dict_propogate_setup:
+                logging_logger.setLevel(dict_propogate_setup["level_to_pass"])
+
     LoguruConfig.load(config_or_file=config_dict)
-    LoguruConfig(extra={"env": "test masking"}, patcher=patcher_wrapper).configure()
+    LoguruConfig(
+        extra={"env": "test masking"},
+        patcher=lambda record: patcher_wrapper(record, dict_maskingsetup),  # type: ignore
+    ).configure()

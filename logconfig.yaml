@@ -11,6 +11,20 @@ masking:
     token: "(?i)token\\s*:\\s*\\S+"
   mask_fields: ["password", "token", "secret", "card"]
 
+# propogate Handler Setup
+propogate:
+  enabled: true # swith global
+  level_to_pass: "INFO"
+  loggers_name:
+    [
+      "uvicorn",
+      "uvicorn.access",
+      "uvicorn.error",
+      "fastapi",
+      "asyncio",
+      "starlette",
+    ]
+
 # Loguru Default Config
 handlers:
   - sink: ext://sys.stdout
