@@ -2,7 +2,6 @@
 from pathlib import Path
 
 import uvicorn
-from app._version import __version__ as version
 from app.config import get_settings
 from app.custom import setup_cors, setup_lifespan
 from app.utils.mlogg import configure_logging
@@ -17,8 +16,9 @@ configure_logging(logconfigpath, settings.APP_ENV.value)
 
 # Main FastAPI Application
 app = FastAPI(
-    title="Addon MultiParser",
-    version=version,
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    debug=settings.APP_DEBUG,
     description="aplikasi untuk helper parsing reply addon json yang panjang panjang",
     lifespan=setup_lifespan,
 )
