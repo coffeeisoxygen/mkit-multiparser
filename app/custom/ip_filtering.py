@@ -6,13 +6,21 @@ from fastapi import Request
 from loguru import logger
 
 
-# Core IP Filter Logic
 class IPFilter:
     def __init__(
         self,
         allowed_ips: set[str] | None = None,
         blocked_ips: set[str] | None = None,
     ):
+        r"""Inisialisasi IPFilter dengan daftar IP yang diizinkan atau diblokir.
+
+        Args:
+            allowed_ips (set[str] | None): Daftar IP yang diizinkan.
+            blocked_ips (set[str] | None): Daftar IP yang diblokir.
+        example:
+            allowed_ips={"192.168.1.1", "192.168.1.2"},
+            blocked_ips={"192.168.1.3"}
+        """
         self.allowed_ips = set(allowed_ips) if allowed_ips else None
         self.blocked_ips = set(blocked_ips) if blocked_ips else None
 

@@ -1,4 +1,4 @@
-# Import logging setup first!
+# ruff : noqa
 from pathlib import Path
 
 import uvicorn
