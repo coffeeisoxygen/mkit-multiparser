@@ -2,10 +2,14 @@
 from pathlib import Path
 
 import uvicorn
+from app._version import __version__ as version
 from app.config import get_settings
 from app.custom import LoggingMiddleware, setup_cors, setup_lifespan
+from app.custom.ip_filtering import IPFilter, ip_protected
+from app.exception import AppExceptionError
 from app.utils.mlogg import configure_logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from loguru import logger
 
 # Override If Needed with passing .env file
@@ -17,7 +21,7 @@ configure_logging(logconfigpath, settings.APP_ENV.value)
 # Main FastAPI Application
 app = FastAPI(
     title=settings.APP_NAME,
-    version=settings.APP_VERSION,
+    version=version,
     debug=settings.APP_DEBUG,
     description="aplikasi untuk helper parsing reply addon json yang panjang panjang",
     lifespan=setup_lifespan,
@@ -26,6 +30,28 @@ app = FastAPI(
 setup_cors(app)
 # middlewares
 app.add_middleware(LoggingMiddleware)
+
+
+# adding custom exceptions
+@app.exception_handler(AppExceptionError)
+async def app_exception_handler(request: Request, exc: AppExceptionError):  # noqa: ARG001, D103, RUF029
+    return JSONResponse(
+        status_code=exc.status_code or 500,
+        content=exc.to_dict(),
+    )
+
+
+@app.get("/")
+async def root():  # noqa: D103
+    return {"message": "Hello World"}
+
+
+# demo ip filtering
+@app.get("/debug")
+@ip_protected(IPFilter(allowed_ips={"10.0.0.1"}))
+async def debug_endpoint():  # noqa: D103
+    return {"message": "This is a debug endpoint"}
+
 
 if __name__ == "__main__":
     logger.info("Running application with Uvicorn...")

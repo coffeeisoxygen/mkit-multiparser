@@ -40,7 +40,6 @@ class Settings(BaseSettings):
     APP_ENV: EnvironmentEnums = EnvironmentEnums.PRODUCTION
     APP_DEBUG: bool = False
     APP_NAME: str = "MKIT_WRAPPER"
-    APP_VERSION: str = version
     CORS: ConfigCors = ConfigCors()
     JWT: ConfigJwt = ConfigJwt()
 
