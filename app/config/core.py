@@ -2,11 +2,11 @@
 
 # ruff:noqa
 #
-import uuid
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from app._version import version
+from app.config.settings import ConfigCors
+
 
 if TYPE_CHECKING:
     from app._version import __version__ as version
@@ -38,13 +38,14 @@ class Settings(BaseSettings):
 
     APP_ENV: EnvironmentEnums = EnvironmentEnums.PRODUCTION
     APP_DEBUG: bool = False
-    APP_NAME: str = "MKIT_WRAPPER"
-    APP_VERSION: str = version
-    ADM_ID: uuid.UUID = uuid.UUID("00000000-0000-0000-0000-000000000000")
-    JWT_SECRET_KEY: str = "test key jwt"
-    JWT_ALGORITHM: str = "test algorithm"
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    DB_URL: str = "sqlite+aiosqlite:///./mkit.db"
+    CORS: ConfigCors = ConfigCors()
+    # APP_NAME: str = "MKIT_WRAPPER"
+    # APP_VERSION: str = version
+    # ADM_ID: uuid.UUID = uuid.UUID("00000000-0000-0000-0000-000000000000")
+    # JWT_SECRET_KEY: str = "test key jwt"
+    # JWT_ALGORITHM: str = "test algorithm"
+    # JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    # DB_URL: str = "sqlite+aiosqlite:///./mkit.db"
 
     @field_validator("APP_ENV", mode="before")
     @classmethod
