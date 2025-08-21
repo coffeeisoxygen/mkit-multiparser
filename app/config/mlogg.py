@@ -1,7 +1,9 @@
 import inspect
 import logging
+import re
 from pathlib import Path
 
+import yaml  # Import PyYAML
 from loguru import logger
 from loguru_config import LoguruConfig
 
@@ -10,14 +12,12 @@ from app.config.core import get_settings
 
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
-        # Get corresponding Loguru level if it exists.
         level: str | int
         try:
             level = logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
 
-        # Find caller from where originated the logged message.
         frame, depth = inspect.currentframe(), 0
         while frame and (depth == 0 or frame.f_code.co_filename == logging.__file__):
             frame = frame.f_back
@@ -31,23 +31,39 @@ class InterceptHandler(logging.Handler):
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
-def hide_sensitive_data(record):
-    # Mask credit card numbers
-    import re
+logyamlpath = Path(__file__).parent.parent.parent / "logconfig.yaml"
 
+# --- Bagian yang diperbarui ---
+# Baca file YAML sebagai string
+yaml_content = logyamlpath.read_text()
+# Uraikan string YAML menjadi kamus Python
+config_dict = yaml.safe_load(yaml_content)
+
+# Dapatkan pola regex dan hapus dari kamus konfigurasi utama
+# Gunakan .pop() untuk mengambil kunci dan menghapusnya, mencegah TypeError pada LoguruConfig
+regex_patterns = config_dict.pop("regex_patterns", {})
+
+# Sekarang, inisialisasi LoguruConfig HANYA dengan bagian konfigurasi Loguru yang valid
+logconfig = LoguruConfig.load(config_dict)
+# --- Akhir Bagian yang diperbarui ---
+
+
+def hide_sensitive_data(record) -> None:
+    """Prevent from leaking sensitive data using dynamic regex."""
+    # Gunakan pola regex yang dimuat dari kamus regex_patterns
     record["message"] = re.sub(
-        r"\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b",
+        regex_patterns.get(
+            "credit_card", r""
+        ),  # Gunakan .get() untuk keamanan jika kunci tidak ada
         "XXXX-XXXX-XXXX-XXXX",
         record["message"],
     )
-    # Mask email addresses
     record["message"] = re.sub(
-        r"\b[\w.-]+@[\w.-]+\.\w+\b", "***@***.***", record["message"]
+        regex_patterns.get("email", r""),  # Gunakan .get() untuk keamanan
+        "***@***.***",
+        record["message"],
     )
 
 
-logyamlpath = Path(__file__).parent.parent.parent / "logconfig.yaml"
-logconfig = LoguruConfig.load(logyamlpath)
-# sampai sini maka obj logger sudah ada setup nya , kita overide dsini
 overenv = get_settings().APP_ENV.value
 logger.configure(extra={"env": overenv}, patcher=hide_sensitive_data)
