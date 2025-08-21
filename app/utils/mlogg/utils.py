@@ -54,7 +54,6 @@ def exception_patcher(record: Any, exception_format: dict[str, Any]) -> None:
     if exception_format and exception_format.get("enabled"):
         exc = record.get("exception")
         if exc is not None:
-            # Gunakan style 'plaintext' agar kompatibel di semua versi stackprinter
             style = "plaintext"
             if exception_format.get("use_stackprinter") and stackprinter:
                 try:
