@@ -10,8 +10,8 @@ def main():
     logconfigpath = Path(__file__).parent.parent.parent.parent / "logconfig.yaml"
     configure_logging(logconfigpath)
 
-    logger.info("Starting example...")
-    logger.info("User paid with card 4532-1234-5678-9012")
+    # logger.info("Starting example...")
+    # logger.info("User paid with card 4532-1234-5678-9012")
 
     # # Sample function using log_exec_time decorator (sync)
     # @log_exec_time(level="INFO")
@@ -27,18 +27,18 @@ def main():
     #     await asyncio.sleep(0.1)
     #     return {"user_id": user_id, "name": "John Doe"}
 
-    logger.info("Contact email: john.doe@example.com")
-    logger.bind(
-        extra={
-            "user_id": "12345",
-            "transaction_id": "abcde-12345-fghij-67890",
-            "payment_method": "credit_card",
-            "token": "ini harus redacted",
-        }
-    ).info("Payment processed successfully.")
+    # logger.info("Contact email: john.doe@example.com")
+    # logger.bind(
+    #     extra={
+    #         "user_id": "12345",
+    #         "transaction_id": "abcde-12345-fghij-67890",
+    #         "payment_method": "credit_card",
+    #         "token": "ini harus redacted",
+    #     }
+    # ).info("Payment processed successfully.")
 
-    password = "password ini harus redacted"
-    logger.info(f"User password: {password}")
+    # password = "password ini harus redacted"
+    # logger.info(f"User password: {password}")
 
     # # # Example: log exception with stackprinter/diagnose
 

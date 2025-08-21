@@ -46,8 +46,10 @@ handlers:
   # Handler khusus untuk error/exception (dengan stackprinter/traceback)
   - sink: ext://sys.stderr
     level: "ERROR"
-    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level>"
+    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level> | {extra}"
     enqueue: true
+    diagnose: true
+    backtrace: true
     # filter: "lambda record: record['level'].no >= 40" # hanya untuk level ERROR dan ke atas
 
 extra:

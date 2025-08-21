@@ -54,11 +54,11 @@ def exception_patcher(record: Any, exception_format: dict[str, Any]) -> None:
     if exception_format and exception_format.get("enabled"):
         exc = record.get("exception")
         if exc is not None:
+            # Ganti style ke default jika diagnose tidak tersedia
+            style = "default" if exception_format.get("diagnose") else None
             if exception_format.get("use_stackprinter") and stackprinter:
-                style = "diagnose" if exception_format.get("diagnose") else None
                 record["extra"]["stack"] = stackprinter.format(exc, style=style)
             else:
-                # fallback to default traceback
                 record["extra"]["stack"] = "\n" + "".join(
                     traceback.format_exception(type(exc), exc, exc.__traceback__)
                 )
