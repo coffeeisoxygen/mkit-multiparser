@@ -1,5 +1,7 @@
 """project environments configurations."""
 
+# ruff:noqa
+#
 import uuid
 from enum import StrEnum
 from typing import TYPE_CHECKING

@@ -4,10 +4,9 @@ import re
 from pathlib import Path
 
 import yaml
+from app.config.core import get_settings
 from loguru import logger
 from loguru_config import LoguruConfig
-
-from app.config.core import get_settings
 
 
 class InterceptHandler(logging.Handler):
@@ -77,4 +76,5 @@ def hide_sensitive_data(record) -> None:
                     record["extra"][field] = default_mask
 
 
+# ini adalah Main config nya
 logger.configure(extra={"env": overenv}, patcher=hide_sensitive_data)
