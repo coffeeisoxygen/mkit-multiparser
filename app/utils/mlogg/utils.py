@@ -54,10 +54,21 @@ def exception_patcher(record: Any, exception_format: dict[str, Any]) -> None:
     if exception_format and exception_format.get("enabled"):
         exc = record.get("exception")
         if exc is not None:
-            # Ganti style ke default jika diagnose tidak tersedia
-            style = "default" if exception_format.get("diagnose") else None
+            # Gunakan style 'plaintext' agar kompatibel di semua versi stackprinter
+            style = "plaintext"
             if exception_format.get("use_stackprinter") and stackprinter:
-                record["extra"]["stack"] = stackprinter.format(exc, style=style)
+                try:
+                    record["extra"]["stack"] = stackprinter.format(exc, style=style)
+                except Exception as e:
+                    # Fallback ke traceback standar jika stackprinter gagal
+                    record["extra"]["stack"] = (
+                        f"Stackprinter failed: {e}\n\n"
+                        + "\n".join(
+                            traceback.format_exception(
+                                type(exc), exc, exc.__traceback__
+                            )
+                        )
+                    )
             else:
                 record["extra"]["stack"] = "\n" + "".join(
                     traceback.format_exception(type(exc), exc, exc.__traceback__)
