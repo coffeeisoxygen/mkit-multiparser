@@ -25,14 +25,31 @@ propogate:
       "starlette",
     ]
 
+exception_format:
+  enabled: true
+  use_stackprinter: true
+  diagnose: true
+traceback_format:
+  enabled: true
+
 # Loguru Default Config
 handlers:
+  # Handler utama untuk info/debug (tanpa traceback/stackprinter)
   - sink: ext://sys.stdout
-    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> |  <level>{message}</level> | <l>{extra}</>"
-    diagnose: true
-    backtrace: true
+    level: "INFO"
+    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level> | <l>{extra}</>"
     enqueue: true
-    level: "DEBUG"
+    diagnose: false
+    backtrace: false
+    # filter: "lambda record: record['level'].no < 40" # hanya untuk level < ERROR
+
+  # Handler khusus untuk error/exception (dengan stackprinter/traceback)
+  - sink: ext://sys.stderr
+    level: "ERROR"
+    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level>"
+    enqueue: true
+    # filter: "lambda record: record['level'].no >= 40" # hanya untuk level ERROR dan ke atas
+
 extra:
   env: "override me please"
 
