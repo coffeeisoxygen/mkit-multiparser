@@ -3,7 +3,7 @@ from pathlib import Path
 
 import uvicorn
 from app.config import get_settings
-from app.custom import setup_cors, setup_lifespan
+from app.custom import LoggingMiddleware, setup_cors, setup_lifespan
 from app.utils.mlogg import configure_logging
 from fastapi import FastAPI
 from loguru import logger
@@ -24,6 +24,8 @@ app = FastAPI(
 )
 # CORS
 setup_cors(app)
+# middlewares
+app.add_middleware(LoggingMiddleware)
 
 if __name__ == "__main__":
     logger.info("Running application with Uvicorn...")
