@@ -12,7 +12,7 @@ from app.custom import (
 from app.exception import setup_exception
 from app.lifespan import setup_lifespan
 from app.router import setup_router
-from app.utils.mlogg import setup_logging
+from app.custom.mlogging import setup_logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger

@@ -3,9 +3,10 @@ import logging
 from pathlib import Path
 
 import yaml
-from app.utils.mlogg.utils import masking_patcher
 from loguru import logger
 from loguru_config import LoguruConfig
+
+from app.custom.mlogging.utils import masking_patcher
 
 
 class InterceptHandler(logging.Handler):
