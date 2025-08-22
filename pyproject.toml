@@ -223,6 +223,8 @@ markers = [
     "api: mark test as API test",
     "database: mark test as database-related",
     "e2e: mark end to end testing",
+    "digipos: mark test as digipos-related",
+    "negative: mark test as negative test",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning",

@@ -19,6 +19,7 @@ class DigiposApiClient:
     USERNAME = settings.DGP.username
     PASSWORD = settings.DGP.password
     PIN = settings.DGP.pin
+    PM_LINK_AJA = "LINKAJA"
 
     async def _get(self, endpoint: str, params: dict, timeout: float = 10.0) -> dict:
         log = logger.bind(endpoint=endpoint, params=params)

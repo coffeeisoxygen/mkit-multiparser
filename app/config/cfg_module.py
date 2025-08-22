@@ -8,3 +8,5 @@ class ConfigModule(BaseSettings):
     pin: str
     email: str
     msisdn: str
+    pmla: str
+    pmgs: str
