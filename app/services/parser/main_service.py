@@ -39,9 +39,10 @@ def is_category_supported(category: str) -> bool:
     """Check if category is supported."""
     try:
         ProcessorFactory.get_processor_type(category)
-        return True
     except ValueError:
         return False
+    else:
+        return True
 
 
 # For backward compatibility and testing
