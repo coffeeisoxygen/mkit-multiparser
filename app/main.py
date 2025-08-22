@@ -8,14 +8,11 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from app.config import get_settings
-from app.custom import LoggingMiddleware
+from app.custom import LoggingMiddleware, setup_logging
 from app.exception import setup_exception
 from app.lifespan import setup_lifespan
 from app.router import setup_router
-from app.custom.mlogging.setup import setup_logging
 
-
-# Import trimmer page to register it
 
 # Setup settings and logging
 settings = get_settings()
