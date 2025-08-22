@@ -9,7 +9,7 @@ from app.custom import (
     setup_cors,
     setup_lifespan,
 )
-from app.exception.base import setup_exception
+from app.exception import setup_exception
 from app.router import setup_router
 from app.utils.mlogg import configure_logging
 from fastapi import FastAPI
