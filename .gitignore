@@ -68,3 +68,6 @@ user_info.json
 schemathesis.toml
 
 app/_version.py
+
+# latihan
+experiments/
