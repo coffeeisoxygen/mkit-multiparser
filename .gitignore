@@ -70,4 +70,4 @@ schemathesis.toml
 app/_version.py
 
 # latihan
-experiments/
+.experiments/
