@@ -71,3 +71,5 @@ app/_version.py
 
 # latihan
 .experiments/
+
+.data/
