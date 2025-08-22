@@ -1,8 +1,9 @@
 """router untuk admin / sys admin."""
 
+from fastapi import APIRouter, Request
+
 from app.config import get_settings
 from app.custom.security.ip_filtering import IPFilter, ip_protected
-from fastapi import APIRouter, Request
 
 router = APIRouter()
 

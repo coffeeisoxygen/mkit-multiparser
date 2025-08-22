@@ -7,5 +7,5 @@ from app.api.v1 import rtr_admin, rtr_digipos
 
 
 def setup_router(app):
-    app.include_router(rtr_admin, prefix="/admin", tags=["admin"])
-    app.include_router(rtr_digipos, prefix="/digipos", tags=["digipos"])
+    app.include_router(rtr_admin, prefix="/api/v1/admin", tags=["admin"])
+    app.include_router(rtr_digipos, prefix="/api/v1/digipos", tags=["digipos"])
