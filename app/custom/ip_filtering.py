@@ -1,9 +1,10 @@
 from collections.abc import Callable
 from functools import wraps
 
-from app.exception.exceptions import IPBlockedError, RequestValidationError
 from fastapi import Request
 from loguru import logger
+
+from app.exception.exceptions import IPBlockedError, RequestValidationError
 
 
 class IPFilter:
@@ -11,18 +12,22 @@ class IPFilter:
         self,
         allowed_ips: set[str] | None = None,
         blocked_ips: set[str] | None = None,
+        enabled: bool = True,
     ):
         r"""Inisialisasi IPFilter dengan daftar IP yang diizinkan atau diblokir.
 
         Args:
             allowed_ips (set[str] | None): Daftar IP yang diizinkan.
             blocked_ips (set[str] | None): Daftar IP yang diblokir.
+            enabled (bool): Toggle global untuk mengaktifkan atau menonaktifkan filter IP.
         example:
             allowed_ips={"192.168.1.1", "192.168.1.2"},
-            blocked_ips={"192.168.1.3"}
+            blocked_ips={"192.168.1.3"},
+            enabled=True
         """
         self.allowed_ips = set(allowed_ips) if allowed_ips else None
         self.blocked_ips = set(blocked_ips) if blocked_ips else None
+        self.enabled = enabled
 
         if self.allowed_ips and self.blocked_ips:
             raise ValueError(
@@ -31,6 +36,8 @@ class IPFilter:
 
     def is_valid(self, ip_address: str) -> bool:
         """Cek apakah IP valid sesuai rules."""
+        if not self.enabled:
+            return True
         if self.allowed_ips is not None:
             return ip_address in self.allowed_ips
         if self.blocked_ips is not None:

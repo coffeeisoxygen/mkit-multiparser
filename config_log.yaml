@@ -1,4 +1,5 @@
 # extending the Setup
+#TODO: Integrasi Dengan Pyndatic Settings Biar Nyaman
 masking:
   enabled: true # swithcer gloal masking
   mask_message: true # aktifkan masking di message

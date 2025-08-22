@@ -1,0 +1,11 @@
+#TODO: Integrasi Dengan Pydantic Settings Biar Nyaman
+
+ip_configs:
+  - ip: 10.0.0.1
+    type: whitelist
+  - ip: 192.168.1.100
+    type: whitelist
+  - ip: 127.0.0.1
+    type: blacklist
+  - ip: 192.168.1.200
+    type: blacklist

@@ -20,7 +20,7 @@ from loguru import logger
 # Override If Needed with passing .env file
 settings = get_settings()
 # logging need env values , optional can be moved if needed
-logconfigpath = Path(__file__).parent.parent / "logconfig.yaml"
+logconfigpath = Path(__file__).parent.parent / "config_log.yaml"
 configure_logging(logconfigpath, settings.APP_ENV.value)
 # Filtering IP
 BLOCKED_IPS_DATA_ENDPOINT = ["127.0.0.1"]
