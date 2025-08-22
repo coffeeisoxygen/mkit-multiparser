@@ -4,33 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JSON Processor Tool</title>
-<script src="https://unpkg.com/htmx.org@1.9.3"></script>
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/app/ui/static/style.css">
 </head>
 <body>
 <div class="container">
-  <header>JSON Processor Tool</header>
-  <div class="main">
-    <!-- Kiri: Input & Settings -->
-    <div class="column">
-      <textarea id="jsonInput" placeholder="Paste JSON..." hx-post="/process"
-                hx-target="#output" hx-trigger="keyup changed delay:500ms"
-                hx-vals='{"regexInput": "#{regexInput.value}", "replaceInput": "#{replaceInput.value}"}'></textarea>
-
-      <input type="text" id="regexInput" placeholder="Regex pattern (optional)"
-             hx-post="/process" hx-target="#output" hx-trigger="keyup changed delay:500ms"
-             hx-vals='{"jsonInput": "#{jsonInput.value}", "replaceInput": "#{replaceInput.value}"}'>
-
-      <input type="text" id="replaceInput" placeholder="Word to replace (optional)"
-             hx-post="/process" hx-target="#output" hx-trigger="keyup changed delay:500ms"
-             hx-vals='{"jsonInput": "#{jsonInput.value}", "regexInput": "#{regexInput.value}"}'>
+  <div class="main-row">
+    <!-- Kiri: Full input JSON -->
+    <div class="panel json-panel" style="flex:1;">
+      <textarea id="jsonInput" placeholder="Paste JSON..."></textarea>
     </div>
-
     <!-- Kanan: Output -->
-    <div class="column">
+    <div class="panel output-panel" style="flex:1;">
       <div id="output"><pre>Hasil akan muncul di sini...</pre></div>
     </div>
   </div>
 </div>
+
+<script src="/app/ui/static/scripts.js"></script>
 </body>
 </html>

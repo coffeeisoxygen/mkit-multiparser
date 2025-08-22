@@ -98,4 +98,13 @@ def log_exec_time(*, entry=True, exit=True, level="DEBUG"):
 
         return async_wrapped if asyncio.iscoroutinefunction(func) else sync_wrapped
 
-    return wrapper
+
+def timeit(func):
+    def wrapped(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        logger.debug("Function '{}' executed in {:f} s", func.__name__, end - start)
+        return result
+
+    return wrapped
