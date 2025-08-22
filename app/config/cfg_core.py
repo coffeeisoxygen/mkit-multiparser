@@ -9,6 +9,7 @@ from app.config.cfg_cors import ConfigCors
 
 from app.config.cfg_env import ConfigEnvironment
 from app.config.cfg_jwt import ConfigJwt
+from app.config.cfg_module import ConfigModule
 
 
 if TYPE_CHECKING:
@@ -40,3 +41,4 @@ class Settings(BaseSettings):
     APP: ConfigEnvironment = ConfigEnvironment()
     CORS: ConfigCors = ConfigCors()
     JWT: ConfigJwt = ConfigJwt()
+    DGP: ConfigModule
