@@ -2,9 +2,8 @@ import pytest
 from app.exception.base import AppExceptionError
 from app.exception.exceptions import IPBlockedError, RequestValidationError
 
-pytestmark = pytest.mark.unit
 
-
+@pytest.mark.unit
 def test_app_exception_error_basic():
     # Arrange
     msg = "Custom error message"
@@ -19,6 +18,7 @@ def test_app_exception_error_basic():
     assert isinstance(repr(exc), str)
 
 
+@pytest.mark.unit
 def test_app_exception_error_chaining():
     # Arrange
     cause = ValueError("invalid value")
@@ -29,6 +29,7 @@ def test_app_exception_error_chaining():
     assert exc.__cause__ == cause
 
 
+@pytest.mark.unit
 def test_app_exception_error_to_dict():
     # Arrange
     exc = AppExceptionError(message="Dict test", context={"x": 1})
@@ -41,6 +42,7 @@ def test_app_exception_error_to_dict():
     assert result["status_code"] is None
 
 
+@pytest.mark.unit
 def test_request_validation_error_default():
     # Act
     exc = RequestValidationError()
@@ -49,6 +51,7 @@ def test_request_validation_error_default():
     assert exc.status_code == 422
 
 
+@pytest.mark.unit
 def test_ip_blocked_error_context():
     # Arrange
     ip = "1.2.3.4"
