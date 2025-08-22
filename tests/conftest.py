@@ -15,7 +15,6 @@ def test_settings():
     Returns:
         _type_: The application settings for the testing environment.
     """
-    from app.config import get_settings
     get_settings.cache_clear()
     return get_settings(_env_file=".env.test")
 
