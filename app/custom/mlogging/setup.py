@@ -2,10 +2,10 @@ import inspect
 import logging
 from pathlib import Path
 
-import yaml
 from loguru import logger
 from loguru_config import LoguruConfig
 
+from app.custom.mlogging.default import load_logging_config
 from app.custom.mlogging.utils import masking_patcher
 
 
@@ -38,34 +38,34 @@ def patcher_wrapper(
         masking_patcher(record, masking_config)
 
 
-def setup_logging(config_path: str | Path, env: str = "development") -> None:
+def setup_logging(
+    config_path: str | Path | None = None, env: str = "development"
+) -> None:
     """Setup logging: intercept stdlib, propagate loggers, masking, exception, traceback, and loguru config.
 
     Args:
-        config_path: Path to YAML config file.
+        config_path: Path to YAML config file (optional).
+        env: Environment name (default: "development").
     """
-    with open(config_path, encoding="utf-8") as file:
-        config_dict = yaml.safe_load(file)
+    config = load_logging_config(config_path)
 
-    dict_maskingsetup = config_dict.pop("masking", {})
-    dict_propogate_setup = config_dict.pop("propogate", {})
-    # dict_exception_setup = config_dict.pop("exception_format", {})
-    # dict_traceback_setup = config_dict.pop("traceback_format", {})
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
-    if dict_propogate_setup.get("enabled", False):
-        for logger_name in dict_propogate_setup.get("loggers_name", []):
+    if config.propogate.enabled:
+        for logger_name in config.propogate.loggers_name:
             logging_logger = logging.getLogger(logger_name)
             logging_logger.handlers = []
             logging_logger.propagate = True
-            if "level_to_pass" in dict_propogate_setup:
-                logging_logger.setLevel(dict_propogate_setup["level_to_pass"])
+            if config.propogate.level_to_pass:
+                logging_logger.setLevel(config.propogate.level_to_pass)
 
+    # Convert config to dict for LoguruConfig
+    config_dict = config.model_dump(exclude={"masking", "propogate"})
     LoguruConfig.load(config_or_file=config_dict, configure=True)
     LoguruConfig(
         extra={"env": env},
         patcher=lambda record: patcher_wrapper(
-            record=record,  # pyright: ignore[reportArgumentType]
-            masking_config=dict_maskingsetup,
+            record=record,  # type: ignore
+            masking_config=config.masking.model_dump(),
         ),
     ).configure()
