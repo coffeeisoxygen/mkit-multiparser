@@ -1,5 +1,8 @@
 from typing import Any
 
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+
 from app.config import get_settings
 
 APP_NAME = get_settings().APP.name
@@ -46,3 +49,18 @@ class AppExceptionError(Exception):
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} status={self.status_code} message={self.message!r}>"
+
+
+def setup_exception(app: FastAPI) -> None:
+    """Register custom exception handlers to FastAPI app.
+
+    Args:
+        app (FastAPI): The FastAPI application instance.
+    """
+
+    @app.exception_handler(AppExceptionError)
+    def app_exception_handler(_, exc: AppExceptionError):
+        return JSONResponse(
+            status_code=exc.status_code or 500,
+            content=exc.to_dict(),
+        )

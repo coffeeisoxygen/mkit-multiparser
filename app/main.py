@@ -9,10 +9,10 @@ from app.custom import (
     setup_cors,
     setup_lifespan,
 )
-from app.exception import AppExceptionError
+from app.exception.base import setup_exception
+from app.router import setup_router
 from app.utils.mlogg import configure_logging
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from loguru import logger
 
 # Override If Needed with passing .env file
@@ -30,42 +30,20 @@ app = FastAPI(
     description="aplikasi untuk helper parsing reply addon json yang panjang panjang",
     lifespan=setup_lifespan,
 )
-setup_cors(app)
 
 # middlewares
 app.add_middleware(LoggingMiddleware)
-# Cors + Security
-
-
-# adding custom exceptions
-@app.exception_handler(AppExceptionError)
-async def app_exception_handler(request: Request, exc: AppExceptionError):  # noqa: ARG001, D103, RUF029
-    return JSONResponse(
-        status_code=exc.status_code or 500,
-        content=exc.to_dict(),
-    )
+# CORS
+setup_cors(app)
+# routers
+setup_router(app)
+# exceptions
+setup_exception(app)
 
 
 @app.get("/")
 async def root():  # noqa: D103
     return {"message": "Hello World"}
-
-
-@app.get("/debug")
-async def debug_endpoint(request: Request):  # noqa: D103
-    """
-    Debug endpoint to dump all settings values.
-
-    Returns:
-        dict: All current settings values.
-    """
-    return {"settings": settings.model_dump()}
-
-
-# demo Ip filtering Based On Blocked List
-@app.get("/blocked")
-async def blocked_endpoint(request: Request):  # noqa: D103
-    return {"message": "This is a blocked endpoint"}
 
 
 if __name__ == "__main__":
