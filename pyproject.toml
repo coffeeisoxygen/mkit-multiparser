@@ -165,7 +165,8 @@ omit = [
     "app/_version.py",
     "app/scripts/*",
     "app/lifespan.py",
-    "app/custom/guard/*"
+    "app/custom/guard/*",
+    "app/custom/mlogging/*"
 ]
 
 [tool.coverage.report]
