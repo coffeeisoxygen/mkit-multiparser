@@ -59,13 +59,36 @@ def setup_logging(
             if config.propogate.level_to_pass:
                 logging_logger.setLevel(config.propogate.level_to_pass)
 
+    # Tentukan sumber log
+    source = "default"
+    if config_path is not None:
+        source = (
+            Path(config_path).name
+            if isinstance(config_path, (str, Path))
+            else str(config_path)
+        )
+
     # Convert config to dict for LoguruConfig
     config_dict = config.model_dump(exclude={"masking", "propogate"})
     LoguruConfig.load(config_or_file=config_dict, configure=True)
+
+    default_extra = {"env": env, "source": source}
+
+    def custom_patcher(record):
+        # masking patcher tetap jalan
+        patcher_wrapper(record, masking_config=config.masking.model_dump())
+        extra = record["extra"]
+        # Jika log pakai bind (ada extra selain default), hapus default
+        if extra and any(k not in default_extra for k in extra):
+            # Hapus semua default key dari extra
+            for k in list(default_extra.keys()):
+                extra.pop(k, None)
+        # Jika tidak ada extra dari bind, pastikan default tetap ada
+        else:
+            for k, v in default_extra.items():
+                extra.setdefault(k, v)
+
     LoguruConfig(
-        extra={"env": env},
-        patcher=lambda record: patcher_wrapper(
-            record=record,  # type: ignore
-            masking_config=config.masking.model_dump(),
-        ),
+        extra=default_extra,
+        patcher=custom_patcher,
     ).configure()

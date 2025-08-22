@@ -1,29 +1,23 @@
 # ruff : noqa
+
 from pathlib import Path
-
 import uvicorn
-
-from app.config import get_settings
-
-from app.custom import (
-    LoggingMiddleware,
-)
-
-from app.exception import setup_exception
-from app.lifespan import setup_lifespan
-from app.router import setup_router
-from app.custom.mlogging import setup_logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
+from app.config import get_settings
+from app.custom import LoggingMiddleware
+from app.exception import setup_exception
+from app.lifespan import setup_lifespan
+from app.router import setup_router
+from app.custom.mlogging.setup import setup_logging
 
-# Override If Needed with passing .env file
+# Setup settings and logging
 settings = get_settings()
-# logging need env values , optional can be moved if needed
 logconfigpath = Path(__file__).parent.parent / "config_log.yaml"
-setup_logging(logconfigpath, settings.APP.environment.value)
-
-
+setup_logging(config_path=logconfigpath, env=settings.APP.environment.value)
+# setup_logging()
+logger.bind(sample="value").info("field extra harus bersih")
 # Main FastAPI Application
 app = FastAPI(
     title=settings.APP.name,
