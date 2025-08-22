@@ -2,7 +2,7 @@ from typing import Any
 
 from app.config import get_settings
 
-APP_NAME = get_settings().APP_NAME
+APP_NAME = get_settings().APP.name
 
 
 # ----------------- Base Exception -----------------

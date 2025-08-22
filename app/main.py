@@ -19,14 +19,14 @@ from loguru import logger
 settings = get_settings()
 # logging need env values , optional can be moved if needed
 logconfigpath = Path(__file__).parent.parent / "config_log.yaml"
-configure_logging(logconfigpath, settings.APP_ENV.value)
+configure_logging(logconfigpath, settings.APP.environment.value)
 
 
 # Main FastAPI Application
 app = FastAPI(
-    title=settings.APP_NAME,
+    title=settings.APP.name,
     version=version,
-    debug=settings.APP_DEBUG,
+    debug=settings.APP.debug,
     description="aplikasi untuk helper parsing reply addon json yang panjang panjang",
     lifespan=setup_lifespan,
 )
