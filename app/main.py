@@ -3,15 +3,14 @@ from pathlib import Path
 
 import uvicorn
 from app._version import __version__ as version
-from app.config import get_settings
+from app.config import get_settings, setup_cors, setup_exception, setup_router
 from app.custom import (
     LoggingMiddleware,
-    setup_cors,
-    setup_lifespan,
 )
-from app.exception import setup_exception
-from app.router import setup_router
-from app.utils.mlogg import configure_logging
+
+from app.lifespan import setup_lifespan
+
+from app.utils.mlogg import setup_logging
 from fastapi import FastAPI
 from loguru import logger
 
@@ -19,7 +18,7 @@ from loguru import logger
 settings = get_settings()
 # logging need env values , optional can be moved if needed
 logconfigpath = Path(__file__).parent.parent / "config_log.yaml"
-configure_logging(logconfigpath, settings.APP.environment.value)
+setup_logging(logconfigpath, settings.APP.environment.value)
 
 
 # Main FastAPI Application

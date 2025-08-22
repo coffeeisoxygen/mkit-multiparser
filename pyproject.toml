@@ -163,7 +163,8 @@ omit = [
     "*/signature_bootstrap.py",
     "app/__init__.py",
     "app/_version.py",
-    "app/mlogg/*"
+    "app/scripts/*",
+    "app/lifespan.py",
 ]
 
 [tool.coverage.report]

@@ -37,7 +37,7 @@ def patcher_wrapper(
         masking_patcher(record, masking_config)
 
 
-def configure_logging(config_path: str | Path, env: str = "development") -> None:
+def setup_logging(config_path: str | Path, env: str = "development") -> None:
     """Setup logging: intercept stdlib, propagate loggers, masking, exception, traceback, and loguru config.
 
     Args:
