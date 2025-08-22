@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Request
 
 from app.config import get_settings
-from app.custom.ip_filtering import IPFilter, ip_protected
+from app.custom.security.ip_filtering import IPFilter, ip_protected
 
 router = APIRouter()
 

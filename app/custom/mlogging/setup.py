@@ -6,7 +6,7 @@ from loguru import logger
 from loguru_config import LoguruConfig
 
 from app.custom.mlogging.default import load_logging_config
-from app.custom.mlogging.utils import extra_patcher, masking_patcher
+from app.custom.mlogging.patcher import extra_patcher, masking_patcher
 
 
 class InterceptHandler(logging.Handler):
