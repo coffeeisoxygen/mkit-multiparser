@@ -53,7 +53,13 @@ async def root():  # noqa: D103
 
 @app.get("/debug")
 async def debug_endpoint(request: Request):  # noqa: D103
-    return {"message": "This is a debug endpoint"}
+    """
+    Debug endpoint to dump all settings values.
+
+    Returns:
+        dict: All current settings values.
+    """
+    return {"settings": settings.model_dump()}
 
 
 # demo Ip filtering Based On Blocked List
