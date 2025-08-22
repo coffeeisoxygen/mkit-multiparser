@@ -32,7 +32,8 @@ app = FastAPI(
 )
 
 # middlewares
-app.add_middleware(LoggingMiddleware)
+app.add_middleware(middleware_class=LoggingMiddleware)
+
 # CORS
 setup_cors(app)
 # routers
