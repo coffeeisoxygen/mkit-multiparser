@@ -7,6 +7,8 @@ import pytest
 from app.config import get_settings
 from app.config.cfg_env import EnvironmentEnums
 from app.custom.mlogging.setup import InterceptHandler
+from app.exception.loader import setup_exception
+from fastapi import FastAPI
 from loguru import logger
 
 
@@ -43,3 +45,10 @@ def intercept_loguru(caplog: pytest.LogCaptureFixture):
     )
     yield
     logger.remove(handler_id)
+
+
+@pytest.fixture
+def app_with_exception():
+    app = FastAPI()
+    setup_exception(app)
+    return app
