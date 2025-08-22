@@ -1,5 +1,10 @@
 import httpx
+from loguru import logger
 from pydantic import BaseModel
+
+from app.config import get_settings
+
+settings = get_settings()
 
 
 class DigiposApiResponse(BaseModel):
@@ -10,11 +15,18 @@ class DigiposApiResponse(BaseModel):
 class DigiposApiClient:
     """Client untuk konsumsi OtomaX API."""
 
-    BASE_URL = "http://10.0.0.3:10003"
+    BASE_URL = settings.DGP.baseurl.rstrip("/")
+    USERNAME = settings.DGP.username
+    PASSWORD = settings.DGP.password
+    PIN = settings.DGP.pin
 
     async def _get(self, endpoint: str, params: dict, timeout: float = 10.0) -> dict:
+        log = logger.bind(endpoint=endpoint, params=params)
+        log.info("Requesting endpoint")
         async with httpx.AsyncClient(timeout=timeout) as client:
             resp = await client.get(f"{self.BASE_URL}/{endpoint}", params=params)
+            log_resp = log.bind(status_code=resp.status_code)
+            log_resp.info(f"Response body={resp.text}")
             resp.raise_for_status()
             return resp.json()
 

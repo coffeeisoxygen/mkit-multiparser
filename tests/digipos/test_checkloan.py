@@ -1,5 +1,6 @@
 import httpx
 import pytest
+from app.config import get_settings
 from app.external.digipos.pulsa import DigiposApiClient
 
 pytestmark = pytest.mark.unit
@@ -25,3 +26,15 @@ async def test_checkloan_plaintext(monkeypatch):
     result = await client.cek_loan("user", "081295221639")
     assert result.req == {"username": "user", "to": "081295221639"}
     assert result.res == "Silahkan upgrade paket_terbaik"
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_checkloan_actual():
+    settings = get_settings()
+    client = DigiposApiClient()
+    result = await client.cek_loan(settings.DGP.username, "085352850771")
+    # Output log for manual inspection
+    print("Actual DigiposApiResponse:", result)
+    assert isinstance(result.req, dict)
+    assert isinstance(result.res, str)
