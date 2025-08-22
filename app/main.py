@@ -2,7 +2,9 @@
 
 from pathlib import Path
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from app.config import get_settings
@@ -12,8 +14,7 @@ from app.lifespan import setup_lifespan
 from app.router import setup_router
 from app.custom.mlogging.setup import setup_logging
 
-# NiceGUI integration
-from nicegui import ui
+
 # Import trimmer page to register it
 
 # Setup settings and logging
@@ -30,6 +31,11 @@ app = FastAPI(
     description="aplikasi untuk helper parsing reply addon json yang panjang panjang",
     lifespan=setup_lifespan,
 )
+
+# Mount static files and templates for UI
+app.mount("/static", StaticFiles(directory="app/ui/static"), name="static")
+templates = Jinja2Templates(directory="app/ui/templates")
+
 # middlewares
 app.add_middleware(
     middleware_class=CORSMiddleware,
@@ -38,9 +44,7 @@ app.add_middleware(
     allow_methods=settings.CORS.allow_methods,
     allow_headers=settings.CORS.allow_headers,
 )
-
 app.add_middleware(middleware_class=LoggingMiddleware)
-
 
 # routers
 setup_router(app)
@@ -48,6 +52,14 @@ setup_router(app)
 setup_exception(app)
 
 
+# Endpoint render index.html (UI)
+@app.get("/ui")
+async def ui_index(request: Request):
+    """Render UI index page."""
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+# Default root endpoint
 @app.get("/")
 async def root():  # noqa: D103
     return {"message": "Hello World"}
@@ -55,7 +67,7 @@ async def root():  # noqa: D103
 
 if __name__ == "__main__":
     # Mount NiceGUI to FastAPI app at /ui
-    ui.run_with(app, mount_path="/ui")
+
     logger.info("Running application with Uvicorn...")
     uvicorn.run(
         app="main:app",
