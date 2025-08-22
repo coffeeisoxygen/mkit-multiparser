@@ -10,6 +10,8 @@ pytestmark = pytest.mark.unit
 async def test_checkloan_plaintext(monkeypatch):
     async def mock_get(self, url, params=None, timeout=None):
         class MockResponse:
+            status_code = 200
+
             def raise_for_status(self):
                 pass
 
@@ -18,6 +20,11 @@ async def test_checkloan_plaintext(monkeypatch):
                     "req": {"username": "user", "to": "081295221639"},
                     "res": "Silahkan upgrade paket_terbaik",
                 }
+
+            @property
+            def text(self):
+                # Simulate the response body as a string
+                return '{"req": {"username": "user", "to": "081295221639"}, "res": "Silahkan upgrade paket_terbaik"}'
 
         return MockResponse()
 

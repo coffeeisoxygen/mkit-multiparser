@@ -10,8 +10,8 @@ from app.exception.loader import setup_exception
 from fastapi import FastAPI
 from loguru import logger
 
-DIGIPOS_VALID_NUMBER = "081296221539"
-DIGIPOS_INVALID_NUMBER = "085722599990"
+DIGIPOS_VALID_NUMBER = "081295221539"
+DIGIPOS_INVALID_NUMBER = "081295221639"
 DIGIPOS_PAYMENT_METHOD = "LINKAJA"
 
 
@@ -26,9 +26,9 @@ def test_settings():
         _type_: The application settings for the testing environment.
     """
     get_settings.cache_clear()
-    env_path = Path(__file__).parent.parent / ".env.test"
-    settings = get_settings(_env_file=env_path)
-    # overriding manually
+    test_env = Path(__file__).parent.parent / ".env.test"
+    settings = get_settings(test_env)
+    print(f"values {settings}")
     return settings
 
 

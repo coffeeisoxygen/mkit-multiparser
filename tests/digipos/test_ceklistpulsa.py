@@ -1,13 +1,51 @@
 import pytest
 from app.external.digipos.pulsa import DigiposApiClient
-from tests.conftest import DIGIPOS_PAYMENT_METHOD, DIGIPOS_VALID_NUMBER
+from tests.conftest import (
+    DIGIPOS_INVALID_NUMBER,
+    DIGIPOS_PAYMENT_METHOD,
+    DIGIPOS_VALID_NUMBER,
+)
+
+pytestmark = [pytest.mark.api, pytest.mark.digipos]
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_list_denom_invalid_number(test_settings):
+    """Integration test: nomor tidak valid, harus error format."""
+    client = DigiposApiClient()
+    username = str(test_settings.DGP.username)
+    to = str(DIGIPOS_INVALID_NUMBER)
+    payment_method = str(DIGIPOS_PAYMENT_METHOD)
+    amount = 5000
+    up_harga = 100
+    json_val = 1
+    params = dict(
+        username=username,
+        to=to,
+        payment_method=payment_method,
+        amount=amount,
+        up_harga=up_harga,
+        json=json_val,
+    )
+    print(f"Testing with params (invalid number): {params}")
+    result = await client.list_denom(**params)
+    if result["status"] != 0:
+        print(f"API response error: {result}")
+    assert result["status"] != 0, (
+        f"Expected error for invalid number, got: {result}"
+    )  # show full response on fail
+    assert "messageInfo" in result
+
+
+import pytest
 
 pytestmark = [pytest.mark.api, pytest.mark.digipos]
 
 
 @pytest.mark.unit
 @pytest.mark.asyncio
-async def test_list_denom_unit(monkeypatch):
+async def test_list_denom_unit(monkeypatch, test_settings):
     """Unit test: mock response, verify field and up_harga calculation."""
     sample_response = {
         "status": 0,
@@ -30,7 +68,7 @@ async def test_list_denom_unit(monkeypatch):
         },
     }
 
-    async def mock_get(self, endpoint, params, timeout=10.0):
+    async def mock_get(*_args, **_kwargs):
         return sample_response
 
     monkeypatch.setattr(DigiposApiClient, "_get", mock_get)
@@ -59,20 +97,25 @@ async def test_list_denom_unit(monkeypatch):
 async def test_list_denom_integration(test_settings):
     """Integration test: actual API call, verify field and up_harga calculation."""
     client = DigiposApiClient()
-    username = test_settings.DGP.username
-    to = DIGIPOS_VALID_NUMBER
-    payment_method = DIGIPOS_PAYMENT_METHOD
+    username = str(test_settings.DGP.username)
+    to = "081295221639"
+    payment_method = str(DIGIPOS_PAYMENT_METHOD)
     amount = 5000
     up_harga = 100
-    result = await client.list_denom(
+    json_val = 1
+    params = dict(
         username=username,
         to=to,
         payment_method=payment_method,
         amount=amount,
         up_harga=up_harga,
-        json=1,
+        json=json_val,
     )
-    assert result["status"] == 0
+    print(f"Testing with params: {params}")
+    result = await client.list_denom(**params)
+    if result["status"] != 0:
+        print(f"API response error: {result}")
+    assert result["status"] == 0, f"API error: {result}"  # show full response on fail
     assert result["message"] == "ok"
     assert "data" in result
     denom_list = result["data"].get("rechargeDenomList", [])
