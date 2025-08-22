@@ -41,3 +41,16 @@ def masking_patcher(record: Any, masking: dict[str, Any]) -> None:
             record["extra"] = mask_extra(
                 record["extra"], mask_fields, mask_regex, mask_value
             )
+
+
+def extra_patcher(record: dict, default_extra: dict) -> None:
+    """Override extra: tampilkan default jika tidak ada bind, hapus default jika ada bind."""
+    extra = record["extra"]
+    # Jika log pakai bind (ada extra selain default), hapus default
+    if extra and any(k not in default_extra for k in extra):
+        for k in list(default_extra.keys()):
+            extra.pop(k, None)
+    # Jika tidak ada extra dari bind, pastikan default tetap ada
+    else:
+        for k, v in default_extra.items():
+            extra.setdefault(k, v)

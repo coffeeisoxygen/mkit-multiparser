@@ -6,7 +6,7 @@ from loguru import logger
 from loguru_config import LoguruConfig
 
 from app.custom.mlogging.default import load_logging_config
-from app.custom.mlogging.utils import masking_patcher
+from app.custom.mlogging.utils import extra_patcher, masking_patcher
 
 
 class InterceptHandler(logging.Handler):
@@ -74,21 +74,11 @@ def setup_logging(
 
     default_extra = {"env": env, "source": source}
 
-    def custom_patcher(record):
-        # masking patcher tetap jalan
+    def patcher(record):
         patcher_wrapper(record, masking_config=config.masking.model_dump())
-        extra = record["extra"]
-        # Jika log pakai bind (ada extra selain default), hapus default
-        if extra and any(k not in default_extra for k in extra):
-            # Hapus semua default key dari extra
-            for k in list(default_extra.keys()):
-                extra.pop(k, None)
-        # Jika tidak ada extra dari bind, pastikan default tetap ada
-        else:
-            for k, v in default_extra.items():
-                extra.setdefault(k, v)
+        extra_patcher(record, default_extra)
 
     LoguruConfig(
         extra=default_extra,
-        patcher=custom_patcher,
+        patcher=patcher,
     ).configure()
