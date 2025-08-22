@@ -11,7 +11,8 @@ from app.config.cfg_core import DEFAULT_ENV_FILE, Settings
 def get_settings(_env_file: str | Path | None = None) -> Settings:
     """Prioritas:.
 
-    1. Argumen _env_file
+    1. Argumen _env_filer
+
     2. ENV_FILE dari environment variable
     3. DEFAULT_ENV_FILE (.env)
     """

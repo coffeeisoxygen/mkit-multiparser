@@ -1,12 +1,13 @@
+from app.config.cfg_core import Settings
+from app.config.cfg_env import EnvironmentEnums
 from loguru import logger
 
 
-def test_test_settings_fixture(test_settings):
+def test_test_settings_fixture(test_settings: Settings):
     """Ensure test_settings fixture returns correct values for testing."""
     # Adjusted to match nested config structure
-    assert test_settings.APP.environment.value == "TESTING"
+    assert test_settings.APP.environment == EnvironmentEnums.TESTING
     assert isinstance(test_settings.APP.debug, bool)
-    assert "sqlite" in test_settings.DB_URL
     assert isinstance(test_settings.APP.name, str)
 
 

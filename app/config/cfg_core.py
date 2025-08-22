@@ -40,7 +40,3 @@ class Settings(BaseSettings):
     APP: ConfigEnvironment = ConfigEnvironment()
     CORS: ConfigCors = ConfigCors()
     JWT: ConfigJwt = ConfigJwt()
-
-    # ADM_ID: uuid.UUID = uuid.UUID("00000000-0000-0000-0000-000000000000")
-
-    # DB_URL: str = "sqlite+aiosqlite:///./mkit.db"

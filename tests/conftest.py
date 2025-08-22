@@ -1,11 +1,13 @@
 """test configuration."""
 
+from pathlib import Path
+
 import pytest
 from app.config import get_settings
 from loguru import logger
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="function", autouse=True)
 def test_settings():
     """
     Test settings fixture for the testing environment.
@@ -16,7 +18,11 @@ def test_settings():
         _type_: The application settings for the testing environment.
     """
     get_settings.cache_clear()
-    return get_settings(_env_file=".env.test")
+    env_path = Path(__file__).parent.parent / ".env.test"
+    settings = get_settings(_env_file=env_path)
+    print(f"Using environment file: {env_path}")
+    # overriding manually
+    return settings
 
 
 @pytest.fixture(autouse=True)
