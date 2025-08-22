@@ -1,13 +1,16 @@
+import pytest
+from app.exception.base import AppExceptionError
 from fastapi.testclient import TestClient
 
+pytestmark = pytest.mark.integration
 
-def test_exception_handler(app_with_exception):
-    @app_with_exception.get("/raise")
+
+@pytest.mark.parametrize("path", ["/raise"])
+def test_exception_handler(app_with_exception, path):
+    @app_with_exception.get(path)
     def raise_error():
-        from app.exception.base import AppExceptionError
-
         raise AppExceptionError(message="Test error")
 
     client = TestClient(app_with_exception)
-    response = client.get("/raise")
+    response = client.get(path)
     assert response.status_code == 500
