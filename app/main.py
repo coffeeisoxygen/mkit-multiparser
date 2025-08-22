@@ -6,6 +6,7 @@ from app._version import __version__ as version
 from app.config import get_settings
 from app.custom import (
     LoggingMiddleware,
+    setup_cors,
     setup_lifespan,
 )
 from app.exception import AppExceptionError
@@ -29,7 +30,7 @@ app = FastAPI(
     description="aplikasi untuk helper parsing reply addon json yang panjang panjang",
     lifespan=setup_lifespan,
 )
-
+setup_cors(app)
 
 # middlewares
 app.add_middleware(LoggingMiddleware)
