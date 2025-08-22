@@ -4,7 +4,7 @@ import logging
 from loguru import logger
 
 # Import the InterceptHandler setup
-importlib.import_module("app.config.logging")
+importlib.import_module("app.custom.mlogging.setup")
 
 
 def test_standard_logging_forwarded_to_loguru(caplog):

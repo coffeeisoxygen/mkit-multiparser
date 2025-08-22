@@ -5,7 +5,7 @@ from app.config import get_settings
 from loguru import logger
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def test_settings():
     """
     Test settings fixture for the testing environment.
@@ -15,6 +15,8 @@ def test_settings():
     Returns:
         _type_: The application settings for the testing environment.
     """
+    from app.config import get_settings
+    get_settings.cache_clear()
     return get_settings(_env_file=".env.test")
 
 
