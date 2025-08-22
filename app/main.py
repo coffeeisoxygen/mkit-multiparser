@@ -12,6 +12,10 @@ from app.lifespan import setup_lifespan
 from app.router import setup_router
 from app.custom.mlogging.setup import setup_logging
 
+# NiceGUI integration
+from nicegui import ui
+# Import trimmer page to register it
+
 # Setup settings and logging
 settings = get_settings()
 logconfigpath = Path(__file__).parent.parent / "config_log.yaml"
@@ -50,6 +54,8 @@ async def root():  # noqa: D103
 
 
 if __name__ == "__main__":
+    # Mount NiceGUI to FastAPI app at /ui
+    ui.run_with(app, mount_path="/ui")
     logger.info("Running application with Uvicorn...")
     uvicorn.run(
         app="main:app",
