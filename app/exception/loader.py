@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from app.exception import AppExceptionError
 
 
-def setup_exception(app) -> None:
+def setup_exception(app) -> None:  # noqa: ANN001
     """Register custom exception handlers to FastAPI app.
 
     Args:
@@ -11,7 +11,7 @@ def setup_exception(app) -> None:
     """
 
     @app.exception_handler(AppExceptionError)
-    def app_exception_handler(_, exc: AppExceptionError):
+    def app_exception_handler(_, exc: AppExceptionError):  # noqa: ANN001
         return JSONResponse(
             status_code=exc.status_code or 500,
             content=exc.to_dict(),

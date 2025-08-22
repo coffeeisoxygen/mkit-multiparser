@@ -46,7 +46,7 @@ def test_exception_handler_with_cause(app_with_exception):
     @app_with_exception.get("/cause")
     def cause():
         try:
-            raise ValueError("fail")
+            raise ValueError("fail")  # noqa: TRY301
         except ValueError as e:
             # Use exception chaining for better traceback
             raise AppExceptionError(message="Has cause") from e
