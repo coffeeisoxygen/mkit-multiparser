@@ -2,16 +2,19 @@
 from pathlib import Path
 
 import uvicorn
-from app._version import __version__ as version
-from app.config import get_settings, setup_cors, setup_exception, setup_router
+
+from app.config import get_settings
+
 from app.custom import (
     LoggingMiddleware,
 )
 
+from app.exception import setup_exception
 from app.lifespan import setup_lifespan
-
+from app.router import setup_router
 from app.utils.mlogg import setup_logging
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 # Override If Needed with passing .env file
@@ -24,17 +27,23 @@ setup_logging(logconfigpath, settings.APP.environment.value)
 # Main FastAPI Application
 app = FastAPI(
     title=settings.APP.name,
-    version=version,
+    version=settings.APP.version,
     debug=settings.APP.debug,
     description="aplikasi untuk helper parsing reply addon json yang panjang panjang",
     lifespan=setup_lifespan,
 )
-
 # middlewares
+app.add_middleware(
+    middleware_class=CORSMiddleware,
+    allow_origins=settings.CORS.allow_origins,
+    allow_credentials=settings.CORS.allow_credentials,
+    allow_methods=settings.CORS.allow_methods,
+    allow_headers=settings.CORS.allow_headers,
+)
+
 app.add_middleware(middleware_class=LoggingMiddleware)
 
-# CORS
-setup_cors(app)
+
 # routers
 setup_router(app)
 # exceptions
