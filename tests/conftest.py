@@ -1,9 +1,12 @@
 """test configuration."""
 
+import logging
 from pathlib import Path
 
 import pytest
 from app.config import get_settings
+from app.config.cfg_env import EnvironmentEnums
+from app.custom.mlogging.setup import InterceptHandler
 from loguru import logger
 
 
@@ -21,12 +24,15 @@ def test_settings():
     env_path = Path(__file__).parent.parent / ".env.test"
     settings = get_settings(_env_file=env_path)
     print(f"Using environment file: {env_path}")
+    settings.APP.environment = EnvironmentEnums.TESTING
     # overriding manually
     return settings
 
 
 @pytest.fixture(autouse=True)
 def intercept_loguru(caplog: pytest.LogCaptureFixture):
+    # Intercept standard logging to loguru
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
     handler_id = logger.add(
         sink=caplog.handler,
         level="DEBUG",
