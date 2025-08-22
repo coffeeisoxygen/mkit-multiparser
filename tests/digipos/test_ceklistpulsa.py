@@ -29,7 +29,7 @@ async def test_list_denom_invalid_number(test_settings):
         json=json_val,
     )
     print(f"Testing with params (invalid number): {params}")
-    result = await client.list_denom(**params)
+    result = await client.list_denom(**params)  # type: ignore
     if result["status"] != 0:
         print(f"API response error: {result}")
     assert result["status"] != 0, (
@@ -37,8 +37,6 @@ async def test_list_denom_invalid_number(test_settings):
     )  # show full response on fail
     assert "messageInfo" in result
 
-
-import pytest
 
 pytestmark = [pytest.mark.api, pytest.mark.digipos]
 
@@ -68,7 +66,7 @@ async def test_list_denom_unit(monkeypatch, test_settings):
         },
     }
 
-    async def mock_get(*_args, **_kwargs):
+    async def mock_get(*_args, **_kwargs):  # noqa: RUF029
         return sample_response
 
     monkeypatch.setattr(DigiposApiClient, "_get", mock_get)
@@ -112,7 +110,7 @@ async def test_list_denom_integration(test_settings):
         json=json_val,
     )
     print(f"Testing with params: {params}")
-    result = await client.list_denom(**params)
+    result = await client.list_denom(**params)  # type: ignore
     if result["status"] != 0:
         print(f"API response error: {result}")
     assert result["status"] == 0, f"API error: {result}"  # show full response on fail

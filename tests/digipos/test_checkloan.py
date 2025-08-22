@@ -8,7 +8,7 @@ pytestmark = pytest.mark.unit
 
 @pytest.mark.asyncio
 async def test_checkloan_plaintext(monkeypatch):
-    async def mock_get(self, url, params=None, timeout=None):
+    async def mock_get(self, url, params=None, timeout=None):  # noqa: ARG001, RUF029
         class MockResponse:
             status_code = 200
 
