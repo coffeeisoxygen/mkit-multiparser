@@ -11,7 +11,7 @@ from app.config import get_settings
 from app.custom import LoggingMiddleware, setup_logging
 from app.exception import setup_exception
 from app.lifespan import setup_lifespan
-from app.router import setup_router
+from app.api import setup_router
 
 
 # Setup settings and logging
@@ -63,8 +63,6 @@ async def root():  # noqa: D103
 
 
 if __name__ == "__main__":
-    # Mount NiceGUI to FastAPI app at /ui
-
     logger.info("Running application with Uvicorn...")
     uvicorn.run(
         app="main:app",

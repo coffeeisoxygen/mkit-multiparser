@@ -3,8 +3,7 @@ r"""configurasi router dan lain lain exposed disini.
 include registering the routers
 """
 
-from app.router.rtr_admin import router as rtr_admin
-from app.router.rtr_digipos import router as rtr_digipos
+from app.api.v1 import rtr_admin, rtr_digipos
 
 
 def setup_router(app):
