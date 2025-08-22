@@ -1,7 +1,6 @@
 # ruff : noqa
 from pathlib import Path
 
-from guard import SecurityMiddleware
 import uvicorn
 from app._version import __version__ as version
 from app.config import get_settings
@@ -10,7 +9,6 @@ from app.custom import (
     setup_lifespan,
 )
 from app.exception import AppExceptionError
-from app.security import sec_config
 from app.utils.mlogg import configure_logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -36,7 +34,6 @@ app = FastAPI(
 # middlewares
 app.add_middleware(LoggingMiddleware)
 # Cors + Security
-app.add_middleware(SecurityMiddleware, config=sec_config)
 
 
 # adding custom exceptions
