@@ -35,10 +35,16 @@ class MemberTrxRequest(MemberTrxReqBase):
     @model_validator(mode="before")
     def detect_and_validate_auth(self, values: dict[str, object]):
         has_sign = bool(values.get("sign"))
-        has_pinpass = bool(values.get("pin") and values.get("password"))
+        has_pin = bool(values.get("pin"))
+        has_pass = bool(values.get("password"))
+        has_pinpass = has_pin and has_pass
         if has_sign and has_pinpass:
             raise ValueError(
                 "Tidak boleh mengirim sign dan pin/password sekaligus. Pilih salah satu metode autentikasi."
+            )
+        if not has_sign and not has_pin and not has_pass:
+            raise ValueError(
+                "Harus mengirim sign atau pin+password untuk autentikasi. Tidak boleh semuanya kosong."
             )
         return values
 
