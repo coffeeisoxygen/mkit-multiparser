@@ -15,6 +15,7 @@ class ConfigEnvironment(BaseSettings):
     name: str = "MKIT_WRAPPER"
     version: str = "0.1.0"
     debug: bool = False
+    datapath: str = "registry/"
 
     @field_validator("environment", mode="before")
     @classmethod
