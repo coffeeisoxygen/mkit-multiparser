@@ -10,8 +10,10 @@ from loguru import logger
 from app.config import get_settings
 from app.custom import LoggingMiddleware, setup_logging
 from app.exception import register_exception_handlers
-from app.lifespan import setup_lifespan
 from app.api import setup_router
+
+from contextlib import asynccontextmanager
+from app.database.core.session import DatabaseSessionManager
 
 
 # 1. Setup settings and logging
@@ -20,13 +22,25 @@ logconfigpath = Path(__file__).parent.parent / "config_log.yaml"
 setup_logging(config_path=logconfigpath, env=settings.APP.environment.value)
 logger.bind(sample="value").info("field extra harus bersih")
 
+# Setup DatabaseSessionManager for lifespan
+sessionmanager = DatabaseSessionManager(settings.DB.url)
+
+
+@asynccontextmanager
+async def lifespan(app):
+    logger.info("Application starting up.")
+    yield
+    logger.info("Application shutting down.")
+    await sessionmanager.close()
+
+
 # 2. Inisialisasi FastAPI app
 app = FastAPI(
     title=settings.APP.name,
     version=settings.APP.version,
     debug=settings.APP.debug,
     description="aplikasi untuk helper parsing reply addon json yang panjang panjang",
-    lifespan=setup_lifespan,
+    lifespan=lifespan,
 )
 
 # 3. Registrasi exception handler
