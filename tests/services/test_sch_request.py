@@ -1,5 +1,6 @@
 """Test untuk MemberTrxRequestAutoDetect schema fleksibel."""
 
+import pytest
 from app.schemas.base.sch_request import MemberTrxRequestAutoDetect
 
 
@@ -43,3 +44,17 @@ def test_detect_missing_fields():
     assert model.sign is None
     assert model.pin is None
     assert model.password is None
+
+
+def test_both_signmode_pinpassmode():
+    data = {
+        "memberid": "AKSES01",
+        "product": "CLPDATA",
+        "dest": "081295221639",
+        "refid": "3042220LIST",
+        "sign": "XmgNy8YxklljuM8lBsrMVnhX7uc",
+        "pin": "777999",
+        "password": "vps777999",
+    }
+    with pytest.raises(ValueError):
+        MemberTrxRequestAutoDetect(**data)
