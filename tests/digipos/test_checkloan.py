@@ -3,9 +3,10 @@ import pytest
 from app.config import get_settings
 from app.external.digipos.pulsa import DigiposApiClient
 
-pytestmark = pytest.mark.unit
+pytestmark = [pytest.mark.unit, pytest.mark.digipos]
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 async def test_checkloan_plaintext(monkeypatch):
     async def mock_get(self, url, params=None, timeout=None):  # noqa: ARG001, RUF029
@@ -36,6 +37,7 @@ async def test_checkloan_plaintext(monkeypatch):
 
 
 @pytest.mark.integration
+@pytest.mark.api
 @pytest.mark.asyncio
 async def test_checkloan_actual():
     settings = get_settings()

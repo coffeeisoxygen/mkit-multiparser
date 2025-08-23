@@ -9,7 +9,7 @@ from tests.conftest import (
 pytestmark = [pytest.mark.api, pytest.mark.digipos]
 
 
-@pytest.mark.integration
+@pytest.mark.api
 @pytest.mark.asyncio
 async def test_list_denom_invalid_number(test_settings):
     """Integration test: nomor tidak valid, harus error format."""
@@ -90,7 +90,7 @@ async def test_list_denom_unit(monkeypatch, test_settings):
     assert total_price - (fee + start_value) == up_harga
 
 
-@pytest.mark.integration
+@pytest.mark.api
 @pytest.mark.asyncio
 async def test_list_denom_integration(test_settings):
     """Integration test: actual API call, verify field and up_harga calculation."""
@@ -127,7 +127,7 @@ async def test_list_denom_integration(test_settings):
     assert total_price - (fee + start_value) == up_harga
 
 
-@pytest.mark.integration
+@pytest.mark.api
 @pytest.mark.asyncio
 @pytest.mark.negative
 async def test_list_denom_wrong_payment_method(test_settings):
