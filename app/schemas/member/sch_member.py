@@ -27,10 +27,7 @@ class MemberBase(BaseModel):
 
 
 class MemberCreate(MemberBase):
-    """saat membuat member baru.
-
-    saat loading Yaml / saat nanti ada actual db
-    """
+    """Schema untuk membuat member baru (validasi upload YAML/db)."""
 
     model_config = ConfigDict(
         coerce_numbers_to_str=True,
@@ -70,3 +67,10 @@ class MemberCreate(MemberBase):
         if not value:
             return False
         return value
+
+
+class MemberRead(MemberBase):
+    """Schema untuk membaca/view data member (tanpa field sensitif)."""
+
+    # Tambahkan field view-only jika perlu, misal created_at, dsb
+    pass
