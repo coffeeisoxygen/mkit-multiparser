@@ -25,13 +25,15 @@ class MemberTrxNoSign(MemberTrxReqBase):
     )
 
 
-class MemberTrxRequestAutoDetect(MemberTrxReqBase):
+class MemberTrxRequest(MemberTrxReqBase):
+    """Core Model Untuk Transaksi."""
+
     sign: str | None = None
     pin: str | None = None
     password: str | None = None
 
     @model_validator(mode="before")
-    def detect_and_validate_auth(cls, values):
+    def detect_and_validate_auth(self, values: dict[str, object]):
         has_sign = bool(values.get("sign"))
         has_pinpass = bool(values.get("pin") and values.get("password"))
         if has_sign and has_pinpass:
@@ -39,3 +41,17 @@ class MemberTrxRequestAutoDetect(MemberTrxReqBase):
                 "Tidak boleh mengirim sign dan pin/password sekaligus. Pilih salah satu metode autentikasi."
             )
         return values
+
+
+class MemberTrxBaseResponse(BaseModel):
+    refid: str | None = Field(
+        ..., title="Reference / Transaction ID", description="The ID of the transaction"
+    )
+    status: str | None = Field(
+        ..., title="Status", description="The status of the transaction"
+    )
+    message: str | None = Field(
+        ...,
+        title="Message",
+        description="Additional information about the transaction status",
+    )
