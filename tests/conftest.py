@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from app.config import get_settings
 from app.custom.mlogging.setup import InterceptHandler
-from app.exception.loader import setup_exception
+from app.exception import reg_custom_except, reg_http_except, reg_validation_except
 from fastapi import FastAPI
 from loguru import logger
 
@@ -51,5 +51,7 @@ def intercept_loguru(caplog: pytest.LogCaptureFixture):
 @pytest.fixture
 def app_with_exception():
     app = FastAPI()
-    setup_exception(app)
+    reg_validation_except(app)
+    reg_http_except(app)
+    reg_custom_except(app)
     return app

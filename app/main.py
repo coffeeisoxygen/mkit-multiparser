@@ -9,7 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from app.config import get_settings
 from app.custom import LoggingMiddleware, setup_logging
-from app.exception import setup_exception
+from app.exception import reg_custom_except
+from app.exception.loader import reg_http_except, reg_validation_except
 from app.lifespan import setup_lifespan
 from app.api import setup_router
 
@@ -46,7 +47,9 @@ app.add_middleware(middleware_class=LoggingMiddleware)
 # routers
 setup_router(app)
 # exceptions
-setup_exception(app)
+reg_custom_except(app)
+reg_http_except(app)
+reg_validation_except(app)
 
 
 # Endpoint render index.html (UI)
