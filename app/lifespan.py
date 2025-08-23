@@ -2,10 +2,22 @@
 
 from contextlib import asynccontextmanager
 
+from fastapi import FastAPI
+from loguru import logger
+
+from app.config import get_settings
+from app.database.core.session import DatabaseSessionManager
+
+# Your sessionmanager from above
+sessionmanager = DatabaseSessionManager(get_settings().DB.url)
+
 
 @asynccontextmanager
-async def setup_lifespan(app):  # noqa: ANN001, ARG001, RUF029
-    """Lifespan context manager for the FastAPI application."""
-    # do something here
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Application starting up.")
+    # Nothing to do here if you initialize the manager at module level
     yield
-    # clean here
+    # Shutdown
+    logger.info("Application shutting down.")
+    await sessionmanager.close()
