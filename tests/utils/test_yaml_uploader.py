@@ -4,9 +4,15 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from app.exception.exceptions import (
+    FileIndexInUseError,
+    FileNotFoundError,
+    FormatFileError,
+)
 from app.schemas.member.sch_member import MemberCreate
 from app.utils.yaml_uploader import YamlDataUploader
 from loguru import logger
+from pydantic import ValidationError
 
 SAMPLE_YAML = """
 members:
@@ -68,6 +74,33 @@ members:
             uploader.load_and_validate(yaml_path)
 
 
+def test_yaml_data_uploader_file_not_found():
+    uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
+    fake_path = Path("/tmp/nonexistent.yaml")
+    with pytest.raises(FileNotFoundError):
+        uploader.load_and_validate(fake_path)
+
+
+def test_yaml_data_uploader_yaml_parse_error():
+    yaml_content = "members: [invalid: [unclosed"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yaml_path = Path(tmpdir) / "members.yaml"
+        yaml_path.write_text(yaml_content, encoding="utf-8")
+        uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
+        with pytest.raises(FormatFileError):
+            uploader.load_and_validate(yaml_path)
+
+
+def test_yaml_data_uploader_items_not_list():
+    yaml_content = "members: {memberid: M12345, name: John}"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yaml_path = Path(tmpdir) / "members.yaml"
+        yaml_path.write_text(yaml_content, encoding="utf-8")
+        uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
+        with pytest.raises(FileIndexInUseError):
+            uploader.load_and_validate(yaml_path)
+
+
 def test_yaml_data_uploader_missing_key():
     yaml_content = """
 notmembers:
@@ -78,5 +111,28 @@ notmembers:
         yaml_path = Path(tmpdir) / "members.yaml"
         yaml_path.write_text(yaml_content, encoding="utf-8")
         uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
-        with pytest.raises(Exception):
+        with pytest.raises(FileIndexInUseError):
+            uploader.load_and_validate(yaml_path)
+
+
+def test_yaml_data_uploader_model_validation_error():
+    yaml_content = """
+members:
+  - memberid: M12345
+    # missing required fields like name, pin, password, etc.
+"""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yaml_path = Path(tmpdir) / "members.yaml"
+        yaml_path.write_text(yaml_content, encoding="utf-8")
+        uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
+        with pytest.raises(ValidationError):
+            uploader.load_and_validate(yaml_path)
+
+
+def test_yaml_data_uploader_empty_file():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yaml_path = Path(tmpdir) / "members.yaml"
+        yaml_path.write_text("", encoding="utf-8")
+        uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
+        with pytest.raises(FileIndexInUseError):
             uploader.load_and_validate(yaml_path)
