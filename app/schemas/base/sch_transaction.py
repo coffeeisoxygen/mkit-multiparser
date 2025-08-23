@@ -47,6 +47,9 @@ class MemberTrxBaseResponse(BaseModel):
     refid: str | None = Field(
         ..., title="Reference / Transaction ID", description="The ID of the transaction"
     )
+    timestamp: str | None = Field(
+        ..., title="Timestamp", description="The timestamp of the transaction"
+    )
     status: str | None = Field(
         ..., title="Status", description="The status of the transaction"
     )
