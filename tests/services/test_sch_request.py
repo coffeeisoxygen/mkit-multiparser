@@ -1,7 +1,7 @@
 """Test untuk MemberTrxRequestAutoDetect schema fleksibel."""
 
 import pytest
-from app.schemas.base.sch_request import MemberTrxRequestAutoDetect
+from app.schemas import MemberTrxRequest
 
 
 def test_detect_signature_mode():
@@ -12,7 +12,7 @@ def test_detect_signature_mode():
         "refid": "3042220LIST",
         "sign": "XmgNy8YxklljuM8lBsrMVnhX7uc",
     }
-    model = MemberTrxRequestAutoDetect(**data)
+    model = MemberTrxRequest(**data)
     assert model.sign == "XmgNy8YxklljuM8lBsrMVnhX7uc"
     assert model.pin is None
     assert model.password is None
@@ -27,7 +27,7 @@ def test_detect_pin_password_mode():
         "pin": "777999",
         "password": "vps777999",
     }
-    model = MemberTrxRequestAutoDetect(**data)
+    model = MemberTrxRequest(**data)
     assert model.sign is None
     assert model.pin == "777999"
     assert model.password == "vps777999"
@@ -40,7 +40,7 @@ def test_detect_missing_fields():
         "dest": "081295221639",
         "refid": "3042220LIST",
     }
-    model = MemberTrxRequestAutoDetect(**data)
+    model = MemberTrxRequest(**data)
     assert model.sign is None
     assert model.pin is None
     assert model.password is None
@@ -57,4 +57,4 @@ def test_both_signmode_pinpassmode():
         "password": "vps777999",
     }
     with pytest.raises(ValueError):
-        MemberTrxRequestAutoDetect(**data)
+        MemberTrxRequest(**data)
