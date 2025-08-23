@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from app.exception.exceptions import FileIndexInUseError, FileNotFoundError
+from app.exception.exceptions import FileDataIndexInUseError, FileDataNotFoundError
 from app.repositories.rep_member import MemberRepository
 
 SAMPLE_YAML = """
@@ -53,7 +53,7 @@ def test_member_repository_load_and_lookup():
 
 def test_member_repository_file_not_found():
     fake_path = Path("/tmp/nonexistent.yaml")
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(FileDataNotFoundError):
         MemberRepository(fake_path)
 
 
@@ -74,5 +74,5 @@ def test_member_repository_invalid_yaml():
     with tempfile.TemporaryDirectory() as tmpdir:
         yaml_path = Path(tmpdir) / "members.yaml"
         yaml_path.write_text(yaml_content, encoding="utf-8")
-        with pytest.raises(FileIndexInUseError):
+        with pytest.raises(FileDataIndexInUseError):
             MemberRepository(yaml_path)

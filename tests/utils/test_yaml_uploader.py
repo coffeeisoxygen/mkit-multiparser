@@ -5,9 +5,8 @@ from pathlib import Path
 
 import pytest
 from app.exception.exceptions import (
-    FileIndexInUseError,
-    FileNotFoundError,
-    FormatFileError,
+    FileDataFormatError,
+    FileDataIndexInUseError,
 )
 from app.schemas.member.sch_member import MemberCreate
 from app.utils.yaml_uploader import YamlDataUploader
@@ -87,7 +86,7 @@ def test_yaml_data_uploader_yaml_parse_error():
         yaml_path = Path(tmpdir) / "members.yaml"
         yaml_path.write_text(yaml_content, encoding="utf-8")
         uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
-        with pytest.raises(FormatFileError):
+        with pytest.raises(FileDataFormatError):
             uploader.load_and_validate(yaml_path)
 
 
@@ -97,7 +96,7 @@ def test_yaml_data_uploader_items_not_list():
         yaml_path = Path(tmpdir) / "members.yaml"
         yaml_path.write_text(yaml_content, encoding="utf-8")
         uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
-        with pytest.raises(FileIndexInUseError):
+        with pytest.raises(FileDataIndexInUseError):
             uploader.load_and_validate(yaml_path)
 
 
@@ -111,7 +110,7 @@ notmembers:
         yaml_path = Path(tmpdir) / "members.yaml"
         yaml_path.write_text(yaml_content, encoding="utf-8")
         uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
-        with pytest.raises(FileIndexInUseError):
+        with pytest.raises(FileDataIndexInUseError):
             uploader.load_and_validate(yaml_path)
 
 
@@ -134,5 +133,5 @@ def test_yaml_data_uploader_empty_file():
         yaml_path = Path(tmpdir) / "members.yaml"
         yaml_path.write_text("", encoding="utf-8")
         uploader = YamlDataUploader("members", "memberid", MemberCreate, logger)
-        with pytest.raises(FileIndexInUseError):
+        with pytest.raises(FileDataIndexInUseError):
             uploader.load_and_validate(yaml_path)
