@@ -41,14 +41,14 @@ class InternalServiceError(AppExceptionError):
     status_code: int | None = 500
 
 
-class FileNotFoundError(InternalServiceError):
+class FileDataNotFoundError(InternalServiceError):
     """Exception untuk kesalahan file tidak ditemukan."""
 
     default_message: str = "File not found."
     status_code: int | None = 404
 
 
-class FormatFileError(InternalServiceError):
+class FileDataFormatError(InternalServiceError):
     """Exception untuk kesalahan format file."""
 
     default_message: str = "File format is invalid."
@@ -62,7 +62,7 @@ class FileDataInvalidError(InternalServiceError):
     status_code: int | None = 422
 
 
-class FileIndexInUseError(InternalServiceError):
+class FileDataIndexInUseError(InternalServiceError):
     """Exception untuk kesalahan indeks file sedang digunakan."""
 
     default_message: str = "File index is in use."

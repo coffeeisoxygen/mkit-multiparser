@@ -3,7 +3,11 @@ from typing import Any
 
 import yaml
 
-from app.exception import FileIndexInUseError, FileNotFoundError, FormatFileError
+from app.exception import (
+    FileDataFormatError,
+    FileDataIndexInUseError,
+    FileDataNotFoundError,
+)
 
 
 class YamlDataUploader:
@@ -16,7 +20,7 @@ class YamlDataUploader:
     def _check_file_exists(self, yaml_path: Path) -> None:
         if not yaml_path.exists():
             self.logger.error("YAML file not found", path=str(yaml_path))
-            raise FileNotFoundError(f"YAML file not found: {yaml_path}")
+            raise FileDataNotFoundError(f"YAML file not found: {yaml_path}")
 
     def _parse_yaml(self, yaml_path: Path) -> dict:
         try:
@@ -26,7 +30,7 @@ class YamlDataUploader:
             self.logger.exception(
                 "Failed to parse YAML file", error=str(e), path=str(yaml_path)
             )
-            raise FormatFileError("Failed to parse YAML file") from e
+            raise FileDataFormatError("Failed to parse YAML file") from e
         return data
 
     def _validate_structure(self, data: dict) -> list[dict]:
@@ -34,13 +38,13 @@ class YamlDataUploader:
             self.logger.error(
                 f"YAML must contain '{self.key_name}' key", path=str(self.key_name)
             )
-            raise FileIndexInUseError(f"YAML must contain '{self.key_name}' key")
+            raise FileDataIndexInUseError(f"YAML must contain '{self.key_name}' key")
         items = data[self.key_name]
         if not isinstance(items, list):
             self.logger.error(
                 f"'{self.key_name}' must be a list", path=str(self.key_name)
             )
-            raise FileIndexInUseError(f"'{self.key_name}' must be a list")
+            raise FileDataIndexInUseError(f"'{self.key_name}' must be a list")
         return items
 
     def _check_duplicates(self, items: list[dict]) -> None:
@@ -62,7 +66,7 @@ class YamlDataUploader:
             try:
                 validated = self.model(**item)
                 validated_items.append(validated)
-            except FileIndexInUseError as e:
+            except FileDataIndexInUseError as e:
                 self.logger.exception(
                     "Validation failed", index=i, item=item, error=str(e)
                 )
