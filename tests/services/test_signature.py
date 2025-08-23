@@ -4,12 +4,13 @@ from app.services.siganture.srv_signature import OtomaxSignatureService
 pytestmark = pytest.mark.unit
 
 
-def test_generate_signature_basic():
+def test_signature_otomax_refid_sample():
+    """Pastikan signature sesuai sample OtomaX untuk refID=3042220LIST."""
     service = OtomaxSignatureService()
     sig = service.generate_signature(
-        "vps", "CLPDATA", "081295221639", "3040881", "777999", "vps777999"
+        "AKSES01", "CLPDATA", "081295221639", "3042220LIST", "777999", "vps777999"
     )
-    assert sig == "MsP6Aticed6s1rlEhvj4NKceFVQ"
+    assert sig == "XmgNy8YxklljuM8lBsrMVnhX7uc"
 
 
 def test_generate_signature_with_list_refid():
