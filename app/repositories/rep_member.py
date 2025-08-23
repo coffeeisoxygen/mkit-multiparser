@@ -27,7 +27,11 @@ class MemberRepository:
         self._members_dict: dict[str, MemberCreate] = {}
 
         logger.info("Initializing MemberRepository", path=self.file_path)
-        self.reload()
+        try:
+            self.reload(initial=True)
+        except Exception:
+            # Propagate custom exceptions during initial load
+            raise
 
     def _load_data_from_file(self) -> list[MemberCreate]:
         """Load data using YamlDataUploader.
@@ -42,11 +46,12 @@ class MemberRepository:
         """
         return self.loader.load_and_validate(self.file_path)
 
-    def reload(self) -> None:
+    def reload(self, initial: bool = False) -> None:
         """Reload all data from file and update internal state.
 
         Uses fallback behavior - if reload fails, keeps existing data and logs error.
         This ensures the repository remains functional even if file becomes temporarily invalid.
+        If initial=True, propagate exceptions for testability.
         """
         logger.info("Starting MemberRepository reload")
         try:
@@ -60,11 +65,10 @@ class MemberRepository:
                 "MemberRepository reload completed successfully", count=len(new_members)
             )
 
-        except FileNotFoundError as e:
-            # Only fallback if we already have data loaded, else propagate
-            if not self._members:
+        except Exception as e:
+            if initial or not self._members:
                 logger.error(
-                    "Member data file not found during initial load",
+                    "Member data file not found or invalid during initial load",
                     error=str(e),
                     path=str(self.file_path),
                 )
@@ -74,14 +78,6 @@ class MemberRepository:
                 error=str(e),
                 current_count=len(self._members),
             )
-        except Exception as e:
-            # Fallback behavior - keep existing data on reload failure
-            logger.error(
-                "Failed to reload member data, keeping existing data",
-                error=str(e),
-                current_count=len(self._members),
-            )
-            # Don't re-raise - this allows the repository to continue functioning
 
     def get_member_by_id(self, memberid: str) -> MemberCreate | None:
         """Get member by ID with O(1) lookup."""

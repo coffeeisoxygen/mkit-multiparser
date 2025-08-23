@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from app.exception.exceptions import FileDataIndexInUseError, FileDataNotFoundError
+from app.exception.exceptions import FileDataFormatError, FileDataNotFoundError
 from app.repositories.rep_member import MemberRepository
 
 SAMPLE_YAML = """
@@ -74,5 +74,6 @@ def test_member_repository_invalid_yaml():
     with tempfile.TemporaryDirectory() as tmpdir:
         yaml_path = Path(tmpdir) / "members.yaml"
         yaml_path.write_text(yaml_content, encoding="utf-8")
-        with pytest.raises(FileDataIndexInUseError):
+
+        with pytest.raises(FileDataFormatError):
             MemberRepository(yaml_path)
