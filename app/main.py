@@ -9,19 +9,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from app.config import get_settings
 from app.custom import LoggingMiddleware, setup_logging
-from app.exception import reg_custom_except
-from app.exception.loader import reg_http_except, reg_validation_except
+from app.exception import register_exception_handlers
 from app.lifespan import setup_lifespan
 from app.api import setup_router
 
 
-# Setup settings and logging
+# 1. Setup settings and logging
 settings = get_settings()
 logconfigpath = Path(__file__).parent.parent / "config_log.yaml"
 setup_logging(config_path=logconfigpath, env=settings.APP.environment.value)
-# setup_logging()
 logger.bind(sample="value").info("field extra harus bersih")
-# Main FastAPI Application
+
+# 2. Inisialisasi FastAPI app
 app = FastAPI(
     title=settings.APP.name,
     version=settings.APP.version,
@@ -30,11 +29,14 @@ app = FastAPI(
     lifespan=setup_lifespan,
 )
 
-# Mount static files and templates for UI
+# 3. Registrasi exception handler
+register_exception_handlers(app)
+
+# 4. Mount static files dan templates
 app.mount("/static", StaticFiles(directory="app/ui/static"), name="static")
 templates = Jinja2Templates(directory="app/ui/templates")
 
-# middlewares
+# 5. Tambahkan middlewares
 app.add_middleware(
     middleware_class=CORSMiddleware,
     allow_origins=settings.CORS.allow_origins,
@@ -44,27 +46,24 @@ app.add_middleware(
 )
 app.add_middleware(middleware_class=LoggingMiddleware)
 
-# routers
+# 6. Setup router
 setup_router(app)
-# exceptions
-reg_custom_except(app)
-reg_http_except(app)
-reg_validation_except(app)
 
 
-# Endpoint render index.html (UI)
+# 7. Endpoint render index.html (UI)
 @app.get("/ui")
 async def ui_index(request: Request):
     """Render UI index page."""
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-# Default root endpoint
+# 8. Default root endpoint
 @app.get("/")
 async def root():  # noqa: D103
     return {"message": "Hello World"}
 
 
+# 9. Main guard
 if __name__ == "__main__":
     logger.info("Running application with Uvicorn...")
     uvicorn.run(

@@ -1,3 +1,4 @@
+# ruff: Noqa
 from fastapi import Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -7,8 +8,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.exception import AppExceptionError
 
 
-def reg_custom_except(app) -> None:  # noqa: ANN001
-    """Register custom exception handlers to FastAPI app.
+def register_exception_handlers(app) -> None:  # noqa: ANN001
+    """Register all custom exception handlers to FastAPI app.
 
     Args:
         app (FastAPI): The FastAPI application instance.
@@ -21,9 +22,6 @@ def reg_custom_except(app) -> None:  # noqa: ANN001
             content=exc.to_dict(),
         )
 
-
-def reg_http_except(app):
-    # Handler untuk HTTPException (nama exception yang di-raise)
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         return JSONResponse(
@@ -37,8 +35,6 @@ def reg_http_except(app):
             },
         )
 
-
-def reg_validation_except(app):
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(
         request: Request, exc: RequestValidationError
