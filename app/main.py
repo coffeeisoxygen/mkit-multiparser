@@ -20,7 +20,7 @@ from app.database.core.session import DatabaseSessionManager
 settings = get_settings()
 logconfigpath = Path(__file__).parent.parent / "config_log.yaml"
 setup_logging(config_path=logconfigpath, env=settings.APP.environment.value)
-logger.bind(sample="value").info("field extra harus bersih")
+
 
 # Setup DatabaseSessionManager for lifespan
 sessionmanager = DatabaseSessionManager(settings.DB.url)
