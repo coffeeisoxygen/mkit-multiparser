@@ -41,29 +41,30 @@ class InternalServiceError(AppExceptionError):
     status_code: int | None = 500
 
 
-class FileDataNotFoundError(InternalServiceError):
-    """Exception untuk kesalahan file tidak ditemukan."""
+# Group User exceptions Error
+class UserGenericError(AppExceptionError):
+    """Exception untuk kesalahan umum pada user."""
 
-    default_message: str = "File not found."
+    default_message: str = "User error occurred."
+    status_code: int | None = 400
+
+
+class UserNotFoundError(UserGenericError):
+    """Exception untuk user tidak ditemukan."""
+
+    default_message: str = "User not found."
     status_code: int | None = 404
 
 
-class FileDataFormatError(InternalServiceError):
-    """Exception untuk kesalahan format file."""
+class UserDuplicateError(UserGenericError):
+    """Exception untuk user duplikat."""
 
-    default_message: str = "File format is invalid."
-    status_code: int | None = 422
-
-
-class FileDataInvalidError(InternalServiceError):
-    """Exception untuk kesalahan data file tidak valid."""
-
-    default_message: str = "Data file is invalid."
-    status_code: int | None = 422
+    default_message: str = "User already exists."
+    status_code: int | None = 409
 
 
-class FileDataIndexInUseError(InternalServiceError):
-    """Exception untuk kesalahan indeks file sedang digunakan."""
+class UserCreationError(UserGenericError):
+    """Exception untuk kesalahan saat membuat user."""
 
-    default_message: str = "File index is in use."
-    status_code: int | None = 423
+    default_message: str = "User creation failed."
+    status_code: int | None = 400
