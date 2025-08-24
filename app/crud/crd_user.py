@@ -1,6 +1,7 @@
 """class crud methods for user."""
 
 import uuid
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,17 +14,24 @@ from app.services.hasher.implement import Argon2Hasher
 
 
 async def get_user_or_404(db_session: AsyncSession, user_id: uuid.UUID) -> models.User:
-    """Get user by ID or raise UserNotFoundError."""
-    user = await db_session.get(models.User, str(user_id))
+    """Get user by ID (not soft deleted) or raise UserNotFoundError."""
+    result = await db_session.execute(
+        select(models.User)
+        .where(models.User.id == str(user_id))
+        .where(models.User.deleted_at.is_(None))
+    )
+    user = result.scalars().first()
     if not user:
         raise UserNotFoundError(context={"user_id": user_id})
     return user
 
 
 async def get_user(db_session: AsyncSession, user_id: uuid.UUID) -> UserRead:
-    """Get user by ID."""
+    """Get user by ID (not soft deleted)."""
     result = await db_session.execute(
-        select(models.User).where(models.User.id == str(user_id))
+        select(models.User)
+        .where(models.User.id == str(user_id))
+        .where(models.User.deleted_at.is_(None))
     )
     user = result.scalars().first()
     if not user:
@@ -34,9 +42,11 @@ async def get_user(db_session: AsyncSession, user_id: uuid.UUID) -> UserRead:
 async def get_user_by_username(
     db_session: AsyncSession, username: str
 ) -> UserRead | None:
-    """Get user by username."""
+    """Get user by username (not soft deleted)."""
     result = await db_session.execute(
-        select(models.User).where(models.User.username == username)
+        select(models.User)
+        .where(models.User.username == username)
+        .where(models.User.deleted_at.is_(None))
     )
     user = result.scalars().first()
     if not user:
@@ -48,11 +58,13 @@ async def create_user(db_session: AsyncSession, user_data: UserCreate) -> UserRe
     """Create a new user.
 
     Raises:
-        UserDuplicateError: If user with the same username already exists.
+        UserDuplicateError: If user with the same username already exists (not soft deleted).
     """
-    # Check if username already exists
+    # Check if username already exists (not soft deleted)
     result = await db_session.execute(
-        select(models.User).where(models.User.username == user_data.username)
+        select(models.User)
+        .where(models.User.username == user_data.username)
+        .where(models.User.deleted_at.is_(None))
     )
     existing_user = result.scalars().first()
     if existing_user:
@@ -71,7 +83,7 @@ async def create_user(db_session: AsyncSession, user_data: UserCreate) -> UserRe
 async def update_user_profile(
     db_session: AsyncSession, user_id: uuid.UUID, user_data: UserUpdate
 ) -> UserRead:
-    """Update user profile (email, full_name)."""
+    """Update user profile (email, full_name) if not soft deleted."""
     user = await get_user_or_404(db_session, user_id)
 
     # Update only allowed fields
@@ -89,7 +101,7 @@ async def update_user_profile(
 async def update_user_password(
     db_session: AsyncSession, user_id: uuid.UUID, user_data: UserUpdatePassword
 ) -> UserRead:
-    """Update user password with validation."""
+    """Update user password with validation if not soft deleted."""
     user = await get_user_or_404(db_session, user_id)
 
     hasher = Argon2Hasher()
@@ -112,9 +124,50 @@ async def update_user_password(
 
 
 async def soft_delete_user(db_session: AsyncSession, user_id: uuid.UUID) -> UserRead:
-    """Soft delete a user by ID."""
+    """Soft delete a user by ID (set deleted_at and is_active=False)."""
+    user = await get_user_or_404(db_session, user_id)
+
+    user.deleted_at = datetime.now(UTC)
+    user.is_active = False
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return UserRead.model_validate(user)
+
+
+async def activate_user(db_session: AsyncSession, user_id: uuid.UUID) -> UserRead:
+    """Activate user (set is_active=True) if not soft deleted."""
+    user = await get_user_or_404(db_session, user_id)
+    user.is_active = True
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return UserRead.model_validate(user)
+
+
+async def deactivate_user(db_session: AsyncSession, user_id: uuid.UUID) -> UserRead:
+    """Deactivate user (set is_active=False) if not soft deleted."""
     user = await get_user_or_404(db_session, user_id)
     user.is_active = False
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return UserRead.model_validate(user)
+
+
+async def restore_user(db_session: AsyncSession, user_id: uuid.UUID) -> UserRead:
+    """Restore user from soft delete (set deleted_at=None, is_active=True)."""
+    # Cari user yang sudah soft delete
+    result = await db_session.execute(
+        select(models.User)
+        .where(models.User.id == str(user_id))
+        .where(models.User.deleted_at.is_not(None))
+    )
+    user = result.scalars().first()
+    if not user:
+        raise UserNotFoundError(context={"user_id": user_id})
+    user.deleted_at = None
+    user.is_active = True
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)

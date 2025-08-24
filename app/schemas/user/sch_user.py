@@ -44,3 +44,15 @@ class UserUpdatePassword(UserUpdate):
     old_password: str
     new_password: str
     confirm_password: str
+
+
+class UserSoftDeletedRead(BaseModel):
+    """Schema minimal untuk user yang sudah soft delete.
+
+    Hanya berisi id, deleted_at, dan email.
+    Digunakan untuk response user yang statusnya sudah dihapus (soft delete).
+    """
+
+    id: uuid.UUID
+    deleted_at: datetime | None
+    email: str
