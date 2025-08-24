@@ -20,21 +20,12 @@ class UserCreate(UserBase):
     password: str
 
 
-class UserSeedAdmin(UserBase):
-    is_superuser: bool
-    is_active: bool
-
-
 class UserRead(UserBase):
     id: uuid.UUID
     is_active: bool
     created_at: datetime | None
     updated_at: datetime | None
     deleted_at: datetime | None
-
-
-class UserAdminRead(UserRead):
-    is_superuser: bool
 
 
 class UserUpdate(BaseModel):
