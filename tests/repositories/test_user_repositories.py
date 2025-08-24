@@ -20,8 +20,8 @@ async def test_create_and_get_user(db_session: AsyncSession):
     )
     created = await repo.create(db_session, user)
     assert created.id is not None
-    fetched = await repo.get_by_id(db_session, created.id)
-    assert fetched.username == "testuser"
+    fetched = await repo.get_by_id(db_session, created.id)  # type: ignore
+    assert fetched.username == "testuser"  # type: ignore
 
 
 @pytest.mark.asyncio
