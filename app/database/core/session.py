@@ -56,9 +56,9 @@ class DatabaseSessionManager:
                     yield connection
                 except SQLAlchemyError as e:
                     await connection.rollback()
-                    logger.bind(method="connect", db_url=str(self.engine.url)).exception(
-                        "Connection error occurred"
-                    )
+                    logger.bind(
+                        method="connect", db_url=str(self.engine.url)
+                    ).exception("Connection error occurred")
                     raise InternalServiceError(message=str(e), cause=e) from e
         except SQLAlchemyError as e:
             # Catch error from __aenter__ (e.g. connection failure)
