@@ -209,3 +209,15 @@ async def restore_user(db_session: AsyncSession, user_id: uuid.UUID) -> UserRead
         await db_session.refresh(user)
         logger.info("User restored from soft delete")
         return UserRead.model_validate(user)
+
+
+async def get_user_with_password_by_username(
+    db_session: AsyncSession, username: str
+) -> models.User | None:
+    """Get user model by username (not soft deleted), untuk verifikasi password."""
+    result = await db_session.execute(
+        select(models.User)
+        .where(models.User.username == username)
+        .where(models.User.deleted_at.is_(None))
+    )
+    return result.scalars().first()

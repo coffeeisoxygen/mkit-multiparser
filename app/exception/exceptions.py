@@ -75,3 +75,32 @@ class UserPasswordError(UserGenericError):
 
     default_message: str = "User password update failed."
     status_code: int | None = 400
+
+
+# group token related
+class TokenGenericError(AppExceptionError):
+    """Exception untuk kesalahan umum pada token."""
+
+    default_message: str = "Token error occurred."
+    status_code: int | None = 400
+
+
+class TokenNotFoundError(TokenGenericError):
+    """Exception untuk token tidak ditemukan."""
+
+    default_message: str = "Token not found."
+    status_code: int | None = 404
+
+
+class TokenExpiredError(TokenGenericError):
+    """Exception untuk token yang sudah kedaluwarsa."""
+
+    default_message: str = "Token expired."
+    status_code: int | None = 401
+
+
+class TokenInvalidError(TokenGenericError):
+    """Exception untuk token yang tidak valid."""
+
+    default_message: str = "Token invalid."
+    status_code: int | None = 401
