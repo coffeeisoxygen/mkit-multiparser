@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import app.models as models
 from app.exception import UserDuplicateError, UserNotFoundError
 from app.schemas import UserCreate, UserRead
+from app.services.hasher.implement import Argon2Hasher
 
 
 async def get_user(db_session: AsyncSession, user_id: uuid.UUID) -> UserRead:
@@ -48,7 +49,10 @@ async def create_user(db_session: AsyncSession, user_data: UserCreate) -> UserRe
     if existing_user:
         raise UserDuplicateError(context={"username": user_data.username})
 
-    user = models.User(**user_data.model_dump())
+    hasher = Argon2Hasher()
+    hashed_pw = hasher.hash(user_data.password)
+    user_dict = user_data.model_dump(exclude={"password"})
+    user = models.User(**user_dict, hashed_password=hashed_pw)
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
