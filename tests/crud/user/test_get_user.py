@@ -1,5 +1,6 @@
 """Test get_user and get_user_by_username CRUD functions, including soft delete filter."""
 
+# pyright: reportOptionalMemberAccess = false
 import uuid
 
 import pytest
