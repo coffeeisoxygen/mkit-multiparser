@@ -85,6 +85,13 @@ class TokenGenericError(AppExceptionError):
     status_code: int | None = 400
 
 
+class AuthError(AppExceptionError):
+    """Exception untuk kesalahan autentikasi."""
+
+    default_message: str = "Authentication error occurred."
+    status_code: int | None = 401
+
+
 class TokenNotFoundError(TokenGenericError):
     """Exception untuk token tidak ditemukan."""
 

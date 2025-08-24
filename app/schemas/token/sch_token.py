@@ -27,3 +27,12 @@ class UserLoginRequest(BaseModel):
 
     username: str
     password: str
+
+
+class UserToken(BaseModel):
+    id: int
+    username: str
+    email: str
+    full_name: str
+    is_superuser: bool
+    is_active: bool

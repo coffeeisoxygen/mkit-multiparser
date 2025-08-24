@@ -1,7 +1,7 @@
-from app.custom.exceptions.cst_exceptions import AuthError
-from app.schemas.token.sch_token import UserToken
-from app.service.auth.credential_service import CredentialService
-from app.service.auth.token_service import TokenService
+from app.exception import AuthError
+from app.schemas import UserLoginRequest, UserLoginResponse, UserToken
+from app.services.auth.credential_service import CredentialService
+from app.services.auth.token_service import TokenService
 
 
 class AuthService:
@@ -15,29 +15,19 @@ class AuthService:
         self.cred = credential_service
         self.token = token_service
 
-    async def login(self, username: str, password: str) -> str:
-        """Login user, return JWT token jika sukses.
+    async def login(self, username: str, password: str) -> UserLoginResponse:
+        """Login user, return UserLoginResponse (berisi JWT token dan user info).
 
         Args:
             username (str): Username user.
             password (str): Password plain user.
 
         Returns:
-            str: JWT token string.
+            UserLoginResponse: berisi user info dan JWT token.
         """
-        user = await self.cred.authenticate(username, password)
-        # user: UserPasswordToken (schema, sudah include info user)
-        user_token = UserToken(
-            id=user.id,
-            username=user.username,
-            email=user.email,
-            full_name=user.full_name,
-            is_superuser=user.is_superuser,
-            is_active=user.is_active,
-        )
-        # Ensure "sub" is a string (username)
-        # --- FIX: pass username as "sub" in token payload ---
-        return self.token.create_token(user_token)
+        login_req = UserLoginRequest(username=username, password=password)
+        response = await self.cred.authenticate(login_req, self.token)
+        return response
 
     def get_user_from_token(self, token: str) -> UserToken:
         """Ambil info user dari JWT token (tanpa query DB).
