@@ -21,13 +21,16 @@ class DatabaseSessionManager:
     """Manages async database connections and sessions."""
 
     def __init__(self, db_url: str):
-        self.engine: AsyncEngine | None = create_async_engine(
-            url=db_url,
-            echo=settings.DB.echo,
-            pool_size=settings.DB.pool_size,
-            max_overflow=settings.DB.max_overflow,
-            connect_args={"timeout": settings.DB.timeout},
-        )
+        # Only pass pool_size and max_overflow if not SQLite
+        engine_kwargs = {
+            "url": db_url,
+            "echo": settings.DB.echo,
+            "connect_args": {"timeout": settings.DB.timeout},
+        }
+        if not db_url.startswith("sqlite"):  # covers sqlite+aiosqlite, sqlite://, etc
+            engine_kwargs["pool_size"] = settings.DB.pool_size
+            engine_kwargs["max_overflow"] = settings.DB.max_overflow
+        self.engine: AsyncEngine | None = create_async_engine(**engine_kwargs)
         self._sessionmaker: async_sessionmaker[AsyncSession] | None = (
             async_sessionmaker(bind=self.engine, expire_on_commit=False)
         )
@@ -47,15 +50,22 @@ class DatabaseSessionManager:
         if self.engine is None:
             raise InternalServiceError("Database engine is not initialized")
 
-        async with self.engine.connect() as connection:
-            try:
-                yield connection
-            except SQLAlchemyError as e:
-                await connection.rollback()
-                logger.bind(method="connect", db_url=str(self.engine.url)).exception(
-                    "Connection error occurred"
-                )
-                raise InternalServiceError(message=str(e), cause=e) from e
+        try:
+            async with self.engine.connect() as connection:
+                try:
+                    yield connection
+                except SQLAlchemyError as e:
+                    await connection.rollback()
+                    logger.bind(method="connect", db_url=str(self.engine.url)).exception(
+                        "Connection error occurred"
+                    )
+                    raise InternalServiceError(message=str(e), cause=e) from e
+        except SQLAlchemyError as e:
+            # Catch error from __aenter__ (e.g. connection failure)
+            logger.bind(method="connect", db_url=str(self.engine.url)).exception(
+                "Connection error occurred on __aenter__"
+            )
+            raise InternalServiceError(message=str(e), cause=e) from e
 
     @contextlib.asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
