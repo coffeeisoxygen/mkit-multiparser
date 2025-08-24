@@ -106,7 +106,7 @@ async def test_get_user_list(db_session):
     # Arrange: clear users and add three users, one soft deleted
     await db_session.execute(delete(User))
     await db_session.commit()
-    user1 = await create_user(
+    await create_user(
         db_session,
         UserCreate(
             username="userlist1",
@@ -124,7 +124,7 @@ async def test_get_user_list(db_session):
             password="pw2",
         ),
     )
-    user3 = await create_user(
+    await create_user(
         db_session,
         UserCreate(
             username="userlist3",
