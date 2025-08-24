@@ -7,6 +7,8 @@ from pydantic import BaseModel, ConfigDict
 
 
 class UserBase(BaseModel):
+    """shared Fields for user."""
+
     model_config = ConfigDict(
         from_attributes=True, populate_by_name=True, extra="forbid"
     )
@@ -17,7 +19,34 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    """inherit from UserBase, dengan tambahan password."""
+
     password: str
+
+
+class UserInDB(UserBase):
+    """response genric untuk user yang ada di database.
+
+    schema ini paling lengkap dan hanya di gunakan di level interface dan repository.
+    """
+
+    id: uuid.UUID
+    password: str
+    is_active: bool
+    is_superuser: bool
+    created_at: datetime | None
+    updated_at: datetime | None
+    deleted_at: datetime | None
+
+
+class UserPublicResponse(UserBase):
+    """response public untuk user.
+
+    ini di gunakan jika butuh schema response yang lebih ringan.
+    most cases, ini di gunakan untuk response yang tidak memerlukan informasi sensitif.
+    """
+
+    id: uuid.UUID
 
 
 class UserRead(UserBase):
