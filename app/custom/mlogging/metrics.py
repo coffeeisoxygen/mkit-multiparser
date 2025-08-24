@@ -3,6 +3,8 @@ from collections import defaultdict
 
 from loguru import logger
 
+# TODO: Pindahkan ini ke config File , dan Integrasi dengan pydantic base class
+
 
 class MetricsCollector:
     def __init__(self):
