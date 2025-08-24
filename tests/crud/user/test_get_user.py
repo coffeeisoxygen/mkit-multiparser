@@ -8,6 +8,7 @@ from app.crud.crd_user import (
     create_user,
     get_user,
     get_user_by_username,
+    get_user_list,
     soft_delete_user,
 )
 from app.exception import UserNotFoundError
@@ -98,3 +99,48 @@ async def test_get_user_by_username_soft_deleted(db_session):
     await soft_delete_user(db_session, created.id)
     result = await get_user_by_username(db_session, "softdelbyusername")
     assert result is None
+
+
+@pytest.mark.asyncio
+async def test_get_user_list(db_session):
+    # Arrange: clear users and add three users, one soft deleted
+    await db_session.execute(delete(User))
+    await db_session.commit()
+    user1 = await create_user(
+        db_session,
+        UserCreate(
+            username="userlist1",
+            email="userlist1@example.com",
+            full_name="User List 1",
+            password="pw1",
+        ),
+    )
+    user2 = await create_user(
+        db_session,
+        UserCreate(
+            username="userlist2",
+            email="userlist2@example.com",
+            full_name="User List 2",
+            password="pw2",
+        ),
+    )
+    user3 = await create_user(
+        db_session,
+        UserCreate(
+            username="userlist3",
+            email="userlist3@example.com",
+            full_name="User List 3",
+            password="pw3",
+        ),
+    )
+    await soft_delete_user(db_session, user2.id)
+
+    # Act
+    users = await get_user_list(db_session)
+
+    # Assert
+    usernames = [u.username for u in users]
+    assert "userlist1" in usernames
+    assert "userlist3" in usernames
+    assert "userlist2" not in usernames
+    assert len(users) == 2

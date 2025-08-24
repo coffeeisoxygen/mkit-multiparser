@@ -54,6 +54,15 @@ async def get_user_by_username(
     return UserRead.model_validate(user)
 
 
+async def get_user_list(db_session: AsyncSession) -> list[UserRead]:
+    """Get list of users (not soft deleted)."""
+    result = await db_session.execute(
+        select(models.User).where(models.User.deleted_at.is_(None))
+    )
+    users = result.scalars().all()
+    return [UserRead.model_validate(user) for user in users]
+
+
 async def create_user(db_session: AsyncSession, user_data: UserCreate) -> UserRead:
     """Create a new user.
 
