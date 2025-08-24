@@ -32,5 +32,15 @@ class UserRead(UserBase):
     deleted_at: datetime | None
 
 
-class UserDeactivate(UserBase):
-    pass
+class UserUpdate(BaseModel):
+    model_config = ConfigDict(
+        from_attributes=True, populate_by_name=True, extra="forbid"
+    )
+    email: str | None
+    full_name: str | None
+
+
+class UserUpdatePassword(UserUpdate):
+    old_password: str
+    new_password: str
+    confirm_password: str

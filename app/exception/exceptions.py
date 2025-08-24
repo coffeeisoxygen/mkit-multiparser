@@ -68,3 +68,10 @@ class UserCreationError(UserGenericError):
 
     default_message: str = "User creation failed."
     status_code: int | None = 400
+
+
+class UserPasswordError(UserGenericError):
+    """Exception untuk kesalahan saat mengubah password user."""
+
+    default_message: str = "User password update failed."
+    status_code: int | None = 400
