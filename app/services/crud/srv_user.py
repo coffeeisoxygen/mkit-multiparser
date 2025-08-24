@@ -64,6 +64,7 @@ class UserService:
             user.full_name = data.full_name
 
         updated = await self.repo.update(db, user)
+        await db.refresh(updated)
         return UserRead.model_validate(updated)
 
     # --- Update Password ---
@@ -82,6 +83,7 @@ class UserService:
 
         user.hashed_password = self.hasher.hash(data.new_password)
         updated = await self.repo.update(db, user)
+        await db.refresh(updated)
         return UserRead.model_validate(updated)
 
     # --- Soft Delete / Activate / Deactivate ---
@@ -90,6 +92,7 @@ class UserService:
         if not user:
             raise UserNotFoundError(context={"user_id": str(user_id)})
         updated = await self.repo.soft_delete(db, user)
+        await db.refresh(updated)
         return UserRead.model_validate(updated)
 
     async def restore(self, db: AsyncSession, user_id: uuid.UUID) -> UserRead:
@@ -97,6 +100,7 @@ class UserService:
         if not user:
             raise UserNotFoundError(context={"user_id": str(user_id)})
         updated = await self.repo.restore(db, user)
+        await db.refresh(updated)
         return UserRead.model_validate(updated)
 
     async def activate(self, db: AsyncSession, user_id: uuid.UUID) -> UserRead:
@@ -104,6 +108,7 @@ class UserService:
         if not user:
             raise UserNotFoundError(context={"user_id": str(user_id)})
         updated = await self.repo.activate(db, user)
+        await db.refresh(updated)
         return UserRead.model_validate(updated)
 
     async def deactivate(self, db: AsyncSession, user_id: uuid.UUID) -> UserRead:
@@ -111,4 +116,5 @@ class UserService:
         if not user:
             raise UserNotFoundError(context={"user_id": str(user_id)})
         updated = await self.repo.deactivate(db, user)
+        await db.refresh(updated)
         return UserRead.model_validate(updated)
