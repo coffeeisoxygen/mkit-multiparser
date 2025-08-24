@@ -1,11 +1,11 @@
-"""test configuration."""
-
 import logging
 from pathlib import Path
 
 import pytest
 from app.config import get_settings
 from app.custom.mlogging.setup import InterceptHandler
+from app.database.core.session import sessionmanager
+from app.database.core.table import create_tables
 from app.exception import register_exception_handlers
 from fastapi import FastAPI
 from loguru import logger
@@ -46,6 +46,19 @@ def intercept_loguru(caplog: pytest.LogCaptureFixture):
     )
     yield
     logger.remove(handler_id)
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def setup_database():
+    """Create all tables before running tests."""
+    await create_tables(sessionmanager.engine)
+
+
+@pytest.fixture(scope="function")
+async def db_session():
+    """Yield an async database session for tests."""
+    async with sessionmanager.session() as session:
+        yield session
 
 
 @pytest.fixture
