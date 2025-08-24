@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 import jwt
 from app.exception import (
@@ -6,7 +7,7 @@ from app.exception import (
     TokenGenericError,
     TokenInvalidError,
 )
-from app.schemas import UserLoginResponse
+from app.schemas.token import TokenPayload
 from loguru import logger
 
 
@@ -19,35 +20,27 @@ class TokenService:
         self.expire_minutes = expire_minutes
         logger.bind(service="TokenService").debug("TokenService initialized")
 
-    def create_token(self, user: UserLoginResponse) -> str:
-        """Create JWT token with full user info in payload.
-
-        Args:
-            user (UserLoginResponse): UserLoginResponse schema with user info.
-
-        Returns:
-            str: JWT token string.
-        """
+    def create_token(self, user_id: UUID, is_superuser: bool, is_active: bool) -> str:
+        """Create JWT token with minimal payload."""
         expire = datetime.now(UTC) + timedelta(minutes=self.expire_minutes)
+
         payload = {
-            "sub": str(user.user.id),
-            "id": user.user.id,
-            "username": user.user.username,
-            "is_superuser": user.is_superuser,
-            "is_active": user.is_active,
-            "email": user.user.email,
-            "full_name": user.user.full_name,
+            "sub": str(user_id),
+            "is_superuser": is_superuser,
+            "is_active": is_active,
             "exp": expire,
         }
+
         token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-        logger.bind(service="TokenService").debug(
-            "Token created", username=user.user.username
-        )
+        logger.bind(service="TokenService").debug("Token created", user_id=str(user_id))
         return token
 
-    def decode_token(self, token: str) -> dict:
+    def decode_token(self, token: str) -> TokenPayload:
+        """Decode JWT token dan validate ke schema TokenPayload."""
         try:
-            return jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            decoded = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            return TokenPayload.model_validate(decoded)
+
         except jwt.ExpiredSignatureError as e:
             logger.bind(service="TokenService").warning("Token expired", token=token)
             raise TokenExpiredError(cause=e) from e

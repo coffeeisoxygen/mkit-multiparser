@@ -3,7 +3,10 @@
 from app.crud.cr_user import UserCRUD
 from app.exception import UserDuplicateError
 from app.schemas import UserInDB
+from app.schemas.token import TokenResponse
+from app.schemas.token.sch_token import UserLoginRequest, UserLoginResponse
 from app.schemas.user import UserCreate
+from app.services.auth.token_service import TokenService
 from app.services.hasher.implement import Argon2Hasher
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,25 +35,74 @@ class UserService:
         hashed_pw = hasher.hash(register_data.password)
 
         return await UserCRUD.create(
-            session,
+            session=session,
             username=register_data.username,
             email=register_data.email,
             full_name=register_data.full_name,
             hashed_password=hashed_pw,
         )
 
-    async def get_user(self, session: AsyncSession, user_id: str) -> "UserInDB | None":
+    @staticmethod
+    async def login(
+        session: AsyncSession,
+        login_data: UserLoginRequest,
+        token_service: TokenService,
+    ) -> UserLoginResponse:
+        """Authenticate user and return token + user data.
+
+        Args:
+            session (AsyncSession): Database session.
+            login_data (UserLoginRequest): Login request data.
+            token_service (TokenService): Token service for JWT creation.
+
+        Returns:
+            UserLoginResponse: User data and token.
+
+        Raises:
+            ValueError: If username or password is invalid.
+        """
+        user = await UserCRUD.get_by_username(session, login_data.username)
+        if not user:
+            raise ValueError("Invalid username or password")
+
+        hasher = Argon2Hasher()
+        if not hasher.verify(login_data.password, user.hashed_password):
+            raise ValueError("Invalid username or password")
+
+        access_token = token_service.create_token(
+            user_id=user.id,
+            is_superuser=user.is_superuser,
+            is_active=user.is_active,
+        )
+
+        token = TokenResponse(
+            access_token=access_token,
+            expires_in=token_service.expire_minutes * 60,
+        )
+
+        return UserLoginResponse(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            full_name=user.full_name,
+            is_active=user.is_active,
+            is_superuser=user.is_superuser,
+            token=token,
+        )
+
+    @staticmethod
+    async def get_user(session: AsyncSession, user_id: str) -> "UserInDB | None":
         """Get user by ID - uses UserCRUD."""
         return await UserCRUD.get(session=session, user_id=user_id)
 
+    @staticmethod
     async def get_by_username(
-        self, session: AsyncSession, username: str
+        session: AsyncSession, username: str
     ) -> "UserInDB | None":
         """Get user by username - uses UserCRUD."""
         return await UserCRUD.get_by_username(session=session, username=username)
 
-    async def get_by_email(
-        self, session: AsyncSession, email: str
-    ) -> "UserInDB | None":
+    @staticmethod
+    async def get_by_email(session: AsyncSession, email: str) -> "UserInDB | None":
         """Get user by email - uses UserCRUD."""
         return await UserCRUD.get_by_email(session=session, email=email)

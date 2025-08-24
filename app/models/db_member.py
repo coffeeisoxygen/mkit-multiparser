@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models import Base
-from app.models.db_mixin import SoftDeleteMixin, TimestampMixin
+from app.models.hlp_mixin import SoftDeleteMixin, TimestampMixin
 
 
 class Member(Base, TimestampMixin, SoftDeleteMixin):

@@ -1,25 +1,15 @@
-"""Schema untuk response token dan login user."""
+from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.schemas.user.sch_user import UserRead
-
 
 class TokenResponse(BaseModel):
-    """Schema untuk JWT token response."""
+    """Schema untuk JWT token response ke client."""
 
     access_token: str
     token_type: str = "bearer"
     expires_in: int
-
-
-class UserLoginResponse(BaseModel):
-    """Schema untuk response login user + token."""
-
-    user: UserRead
-    token: TokenResponse
-    is_active: bool
-    is_superuser: bool
 
 
 class UserLoginRequest(BaseModel):
@@ -29,10 +19,25 @@ class UserLoginRequest(BaseModel):
     password: str
 
 
-class UserToken(BaseModel):
-    id: int
+class UserLoginResponse(BaseModel):
+    """Schema untuk response login user + token."""
+
+    # data user (public info)
+    id: UUID
     username: str
     email: str
     full_name: str
+    is_active: bool
+    is_superuser: bool
+
+    # token
+    token: TokenResponse
+
+
+class TokenPayload(BaseModel):
+    """Schema payload yang ada di dalam JWT."""
+
+    sub: str  # biasanya user_id
     is_superuser: bool
     is_active: bool
+    exp: datetime

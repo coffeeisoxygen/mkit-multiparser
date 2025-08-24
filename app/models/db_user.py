@@ -1,10 +1,10 @@
 import uuid
 
 from sqlalchemy import Boolean, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
-from app.models.db_mixin import SoftDeleteMixin, TimestampMixin
+from app.models.hlp_mixin import SoftDeleteMixin, TimestampMixin
 
 
 class User(Base, TimestampMixin, SoftDeleteMixin):
@@ -25,8 +25,4 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
 
-    def __repr__(self) -> str:
-        return f"<User id={self.id} email={self.email} full_name={self.full_name}>"
-
-    def __str__(self) -> str:
-        return f"User(id={self.id}, email={self.email}, full_name={self.full_name})"
+    sessions = relationship("Session", back_populates="user")

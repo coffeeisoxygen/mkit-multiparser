@@ -4,7 +4,7 @@ from sqlalchemy import JSON, DateTime, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models import Base
-from app.models.db_mixin import TimestampMixin
+from app.models.hlp_mixin import TimestampMixin
 
 
 class AuditLog(Base, TimestampMixin):
