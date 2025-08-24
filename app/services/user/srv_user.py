@@ -38,3 +38,19 @@ class UserService:
             full_name=register_data.full_name,
             hashed_password=hashed_pw,
         )
+
+    async def get_user(self, session: AsyncSession, user_id: str) -> "UserInDB | None":
+        """Get user by ID - uses UserCRUD."""
+        return await UserCRUD.get(session=session, user_id=user_id)
+
+    async def get_by_username(
+        self, session: AsyncSession, username: str
+    ) -> "UserInDB | None":
+        """Get user by username - uses UserCRUD."""
+        return await UserCRUD.get_by_username(session=session, username=username)
+
+    async def get_by_email(
+        self, session: AsyncSession, email: str
+    ) -> "UserInDB | None":
+        """Get user by email - uses UserCRUD."""
+        return await UserCRUD.get_by_email(session=session, email=email)
