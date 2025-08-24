@@ -17,7 +17,6 @@ class Session(Base, TimestampMixin):
         ip_address (str): IP address of the session.
         user_agent (str): User agent string.
         last_activity (datetime): Last activity timestamp.
-        created_at (datetime): Creation timestamp.
         is_active (bool): Session active status.
         user (User): Relationship to User.
     """
@@ -33,5 +32,6 @@ class Session(Base, TimestampMixin):
     user_agent: Mapped[str] = mapped_column(String)
     last_activity: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     user = relationship("User", back_populates="sessions")
