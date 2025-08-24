@@ -28,10 +28,13 @@ class UserSeedAdmin(UserBase):
 class UserRead(UserBase):
     id: uuid.UUID
     is_active: bool
-    is_superuser: bool
     created_at: datetime | None
     updated_at: datetime | None
     deleted_at: datetime | None
+
+
+class UserAdminRead(UserRead):
+    is_superuser: bool
 
 
 class UserUpdate(BaseModel):
