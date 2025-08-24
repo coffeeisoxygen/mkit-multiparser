@@ -31,7 +31,7 @@ class UserInDB(UserBase):
     """
 
     id: uuid.UUID
-    password: str
+    hashed_password: str
     is_active: bool
     is_superuser: bool
     created_at: datetime | None
