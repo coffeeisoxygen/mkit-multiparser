@@ -1,5 +1,7 @@
 """Base Query Model Shared Schemas."""
 
+from typing import Any
+
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -33,20 +35,17 @@ class MemberTrxRequest(MemberTrxReqBase):
     password: str | None = None
 
     @model_validator(mode="before")
-    def detect_and_validate_auth(self, values: dict[str, object]):
-        has_sign = bool(values.get("sign"))
-        has_pin = bool(values.get("pin"))
-        has_pass = bool(values.get("password"))
-        has_pinpass = has_pin and has_pass
-        if has_sign and has_pinpass:
-            raise ValueError(
-                "Tidak boleh mengirim sign dan pin/password sekaligus. Pilih salah satu metode autentikasi."
-            )
-        if not has_sign and not has_pin and not has_pass:
-            raise ValueError(
-                "Harus mengirim sign atau pin+password untuk autentikasi. Tidak boleh semuanya kosong."
-            )
-        return values
+    @classmethod
+    def detect_and_validate_auth(cls, values: Any) -> dict:
+        """Validasi mode autentikasi: sign mode atau pin/password mode."""
+        data = getattr(values, "data", values)
+        has_sign = bool(data.get("sign"))
+        has_pin = bool(data.get("pin"))
+        has_password = bool(data.get("password"))
+
+        if has_sign and (has_pin or has_password):
+            raise ValueError("Cannot provide both sign and pin/password.")
+        return data
 
 
 class MemberTrxBaseResponse(BaseModel):
