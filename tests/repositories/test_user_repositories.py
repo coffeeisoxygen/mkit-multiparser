@@ -180,3 +180,58 @@ async def test_list_users_active_only(db_session: AsyncSession):
     await repo.create(db_session, inactive_user)
     users = await repo.list_users(db_session, is_active=True)
     assert all(u.is_active for u in users)
+
+
+@pytest.mark.asyncio
+async def test_list_users_limit_offset(db_session: AsyncSession):
+    repo = UserRepo()
+    # Buat 5 user
+    for i in range(5):
+        user = models.User(
+            username=f"limituser{i}",
+            email=f"limituser{i}@example.com",
+            full_name=f"Limit User {i}",
+            hashed_password="pw",
+        )
+        await repo.create(db_session, user)
+    # Ambil 2 user pertama
+    users_limit_2 = await repo.list_users(db_session, limit=2)
+    assert len(users_limit_2) == 2
+    # Ambil user ke-3 dan ke-4
+    users_offset_2 = await repo.list_users(db_session, limit=2, offset=2)
+    assert len(users_offset_2) == 2
+    # Pastikan urutan offset benar
+    assert users_offset_2[0].username == "limituser2"
+    assert users_offset_2[1].username == "limituser3"
+
+
+@pytest.mark.asyncio
+async def test_list_users_limit_offset_is_active(db_session: AsyncSession):
+    repo = UserRepo()
+    # Buat 3 user aktif, 2 user nonaktif
+    for i in range(3):
+        user = models.User(
+            username=f"activepag{i}",
+            email=f"activepag{i}@example.com",
+            full_name=f"Active Pag {i}",
+            hashed_password="pw",
+            is_active=True,
+        )
+        await repo.create(db_session, user)
+    for i in range(2):
+        user = models.User(
+            username=f"inactivepag{i}",
+            email=f"inactivepag{i}@example.com",
+            full_name=f"Inactive Pag {i}",
+            hashed_password="pw",
+            is_active=False,
+        )
+        await repo.create(db_session, user)
+    # Ambil 2 user aktif pertama
+    users_active = await repo.list_users(db_session, limit=2, is_active=True)
+    assert len(users_active) == 2
+    assert all(u.is_active for u in users_active)
+    # Ambil 1 user nonaktif pertama
+    users_inactive = await repo.list_users(db_session, limit=1, is_active=False)
+    assert len(users_inactive) == 1
+    assert all(not u.is_active for u in users_inactive)

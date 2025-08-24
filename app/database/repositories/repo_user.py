@@ -48,7 +48,12 @@ class UserRepo(IUserRepo):
         offset: int = 0,
         is_active: bool | None = None,
     ) -> list[models.User]:
-        stmt = select(models.User).offset(offset).limit(limit)
+        stmt = (
+            select(models.User)
+            .order_by(models.User.username)
+            .offset(offset)
+            .limit(limit)
+        )
 
         if is_active is not None:
             stmt = stmt.where(models.User.is_active == is_active)
