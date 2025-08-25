@@ -1,11 +1,13 @@
 """Service untuk user authentication: register, login, dan integrasi session/token."""
 
 from loguru import logger
+from pydantic import ValidationError
 
 from app.database.repositories.intf_user import IUserRepository
 from app.exception import (
     UserCreationError,
     UserDuplicateError,
+    UserPasswordGenericError,  # import the error
 )
 from app.schemas.user.sch_user import UserCreate, UserPublicResponse
 from app.services.session.srv_session import SessionService
@@ -33,25 +35,37 @@ class UserService:
 
         Memastikan username dan email unik sebelum membuat user baru.
         """
-        # Check username uniqueness
-        existing_user = await self.user_repo.get_user_with_username(user_data.username)
-        if existing_user:
-            logger.bind(username=user_data.username).error("User already exists")
-            raise UserDuplicateError(f"Username {user_data.username} sudah terdaftar.")
+        try:
+            user_data = UserCreate.model_validate(user_data)
+        except ValidationError as ve:
+            with logger.contextualize(username=getattr(user_data, "username", None)):
+                logger.error("Password validation failed")
+            raise UserPasswordGenericError(
+                message="Password validation failed.",
+                context={
+                    "errors": ve.errors(),
+                    "password": getattr(user_data, "password", None),
+                },
+                cause=ve,
+            ) from ve
 
-        # Check email uniqueness
-        existing_email = await self.user_repo.get_user_with_email(user_data.email)
-        if existing_email:
-            logger.bind(email=user_data.email).error("Email already exists")
-            raise UserDuplicateError(f"Email {user_data.email} sudah terdaftar.")
+        with logger.contextualize(username=user_data.username, email=user_data.email):
+            if await self.user_repo.get_user_with_username(user_data.username):
+                logger.error("User already exists")
+                raise UserDuplicateError(
+                    f"Username {user_data.username} sudah terdaftar."
+                )
 
-        hashed_password = self.hasher.hash(user_data.password)
-        user_data.password = hashed_password
-        new_user = await self.user_repo.create_user(user_data)
-        if not new_user:
-            logger.bind(username=user_data.username).error("Failed to create user")
-            raise UserCreationError(
-                message="Terjadi kesalahan saat membuat akun baru.",
-                context={"username": user_data.username},
-            )
-        return UserPublicResponse.model_validate(new_user)
+            if await self.user_repo.get_user_with_email(user_data.email):
+                logger.error("Email already exists")
+                raise UserDuplicateError(f"Email {user_data.email} sudah terdaftar.")
+
+            user_data.password = self.hasher.hash(user_data.password)
+            new_user = await self.user_repo.create_user(user_data)
+            if not new_user:
+                logger.error("Failed to create user")
+                raise UserCreationError(
+                    message="Terjadi kesalahan saat membuat akun baru.",
+                    context={"username": user_data.username},
+                )
+            return UserPublicResponse.model_validate(new_user)

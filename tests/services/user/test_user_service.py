@@ -31,7 +31,7 @@ async def test_register_user_success():
         username="testuser",
         email="test@example.com",
         full_name="Test User",
-        password="pw",
+        password="pwtest@90",
     )
 
     # Act
@@ -41,7 +41,7 @@ async def test_register_user_success():
     assert isinstance(result, UserPublicResponse)
     user_repo.get_user_with_username.assert_called_once_with("testuser")
     user_repo.get_user_with_email.assert_called_once_with("test@example.com")
-    hasher.hash.assert_called_once_with("pw")
+    hasher.hash.assert_called_once_with("pwtest@90")
     user_repo.create_user.assert_called_once()
 
 
@@ -58,7 +58,7 @@ async def test_register_user_duplicate_username():
         username="testuser",
         email="test@example.com",
         full_name="Test User",
-        password="pw",
+        password="pwtest@90",
     )
 
     # Act & Assert
@@ -80,7 +80,7 @@ async def test_register_user_duplicate_email():
         username="testuser",
         email="test@example.com",
         full_name="Test User",
-        password="pw",
+        password="pwtest@90",
     )
 
     # Act & Assert
@@ -104,7 +104,7 @@ async def test_register_user_creation_error():
         username="testuser",
         email="test@example.com",
         full_name="Test User",
-        password="pw",
+        password="pwtest@90",
     )
 
     # Act & Assert
@@ -140,7 +140,7 @@ def test_register_user_invalid_email_format():
             username="testuser",
             email="not-an-email",
             full_name="Test User",
-            password="pw",
+            password="pwtest@90",
         )
 
 
@@ -150,7 +150,7 @@ def test_register_user_whitespace_username():
             username="   ",
             email="test@example.com",
             full_name="Test User",
-            password="pw",
+            password="pwtest@90",
         )
 
 
@@ -174,8 +174,28 @@ def test_register_user_special_char_username():
 @pytest.mark.asyncio
 async def test_register_user_case_sensitive_username():
     user_repo = AsyncMock()
-    user_repo.get_user_with_username.side_effect = [None, MagicMock()]
+    user_repo.get_user_with_username.side_effect = [
+        None,
+        {
+            "id": "user-id",
+            "username": "testuser",
+            "email": "test2@example.com",
+            "full_name": "Test User",
+            "created_at": None,
+            "updated_at": None,
+            "deleted_at": None,
+        },
+    ]
     user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = {
+        "id": "user-id",
+        "username": "TestUser",
+        "email": "test@example.com",
+        "full_name": "Test User",
+        "created_at": None,
+        "updated_at": None,
+        "deleted_at": None,
+    }
     hasher = MagicMock()
     session_service = MagicMock()
     token_service = MagicMock()
@@ -184,13 +204,13 @@ async def test_register_user_case_sensitive_username():
         username="TestUser",
         email="test@example.com",
         full_name="Test User",
-        password="pw",
+        password="pwtest@90",
     )
     user_data2 = UserCreate(
         username="testuser",
         email="test2@example.com",
         full_name="Test User",
-        password="pw",
+        password="pwtest@90",
     )
     await service.register_user(user_data1)
     with pytest.raises(UserDuplicateError):
@@ -204,8 +224,7 @@ def test_register_user_empty_full_name():
         )
 
 
-@pytest.mark.asyncio
-async def test_register_user_short_password():
+def test_register_user_short_password():
     with pytest.raises(ValidationError):
         UserCreate(
             username="testuser",

@@ -1,11 +1,15 @@
 """Database user repository interface definitions.
 
 This module defines the IUserRepository protocol, which specifies
-the contract for user-related database operations. Implementations
-should provide asynchronous methods for CRUD and user management.
+the contract for user-related database operations.
+
+Implementations should provide asynchronous methods for CRUD,
+user management, and administrative operations.
+
+Typical usage involves dependency injection of a concrete
+repository class implementing this protocol.
 """
 
-# ...existing code...
 from typing import Protocol
 
 from app.models.db_user import User
@@ -15,132 +19,82 @@ from app.schemas.user.sch_user import UserCreate, UserUpdate
 class IUserRepository(Protocol):
     """Protocol for user repository operations.
 
-    This interface defines asynchronous methods for retrieving,
-    creating, updating, deleting, and restoring user records.
+    This interface defines asynchronous methods for user management,
+    including CRUD operations, status/lifecycle management, password
+    changes, superuser administration, and user filtering/counting.
+
+    Implementations should provide concrete logic for each method,
+    typically interacting with a database backend.
+
+    Usage:
+        - Dependency injection for repository implementations.
+        - Enables testability and loose coupling in business logic.
+
+    Methods:
+        create_user: Create a new user.
+        get_user_with_id: Retrieve a user by ID.
+        get_user_with_username: Retrieve a user by username.
+        get_user_with_email: Retrieve a user by email.
+        get_all_users: List users with optional filters.
+        update_user: Update user details.
+        delete_user: Permanently delete a user.
+        soft_delete_user: Soft-delete a user.
+        restore_user: Restore a soft-deleted user.
+        activate_user: Activate a user account.
+        deactivate_user: Deactivate a user account.
+        change_password: Change a user's password.
+        set_superuser: Grant superuser privileges.
+        unset_superuser: Revoke superuser privileges.
+        get_superusers: List superusers.
+        get_soft_deleted_users: List soft-deleted users.
+        get_users_by_filter: Filter users by criteria.
+        count_users: Count users with optional filters.
     """
 
-    async def get_user_with_id(self, user_id: str) -> User | None:
-        """Retrieve a user by their unique ID.
+    # CRUD
+    async def create_user(self, user_in: UserCreate) -> User: ...
 
-        Args:
-            user_id: The string UUID of the user.
+    async def get_user_with_id(self, user_id: str) -> User | None: ...
 
-        Returns:
-            The User object if found, otherwise None.
-        """
-        ...
+    async def get_user_with_username(self, username: str) -> User | None: ...
 
-    async def get_user_with_username(self, username: str) -> User | None:
-        """Retrieve a user by their username.
-
-        Args:
-            username: The username of the user.
-
-        Returns:
-            The User object if found, otherwise None.
-        """
-        ...
-
-    async def get_user_with_email(self, email: str) -> User | None:
-        """Retrieve a user by their email address.
-
-        Args:
-            email: The email address of the user.
-
-        Returns:
-            The User object if found, otherwise None.
-        """
-        ...
+    async def get_user_with_email(self, email: str) -> User | None: ...
 
     async def get_all_users(
         self, offset: int = 0, limit: int = 50, is_active: bool | None = None
-    ) -> list[User]:
-        """Retrieve all users with optional pagination and active status filter.
+    ) -> list[User]: ...
 
-        Args:
-            offset: The starting index for pagination.
-            limit: The maximum number of users to return.
-            is_active: Optional filter for active users.
+    async def update_user(self, user_id: str, user_in: UserUpdate) -> User | None: ...
 
-        Returns:
-            A list of User objects.
-        """
-        ...
+    async def delete_user(self, user_id: str) -> bool: ...
 
-    async def create_user(self, user_in: UserCreate) -> User:
-        """Create a new user record.
+    # Status & lifecycle
+    async def soft_delete_user(self, user_id: str) -> User | None: ...
 
-        Args:
-            user_in: The data required to create a user.
+    async def restore_user(self, user_id: str) -> User | None: ...
 
-        Returns:
-            The created User object.
-        """
-        ...
+    async def activate_user(self, user_id: str) -> User | None: ...
 
-    async def update_user(self, user_id: str, user_in: UserUpdate) -> User | None:
-        """Update an existing user record.
+    async def deactivate_user(self, user_id: str) -> User | None: ...
 
-        Args:
-            user_id: The string UUID of the user to update.
-            user_in: The updated user data.
+    # Password
+    async def change_password(self, user_id: str, new_password: str) -> bool: ...
 
-        Returns:
-            The updated User object if found, otherwise None.
-        """
-        ...
+    # Admin & superuser
+    async def set_superuser(self, user_id: str) -> User | None: ...
 
-    async def delete_user(self, user_id: str) -> bool:
-        """Permanently delete a user record.
+    async def unset_superuser(self, user_id: str) -> User | None: ...
 
-        Args:
-            user_id: The string UUID of the user to delete.
+    async def get_superusers(self, offset: int = 0, limit: int = 50) -> list[User]: ...
 
-        Returns:
-            True if deletion was successful, False otherwise.
-        """
-        ...
+    # Soft deleted users
+    async def get_soft_deleted_users(
+        self, offset: int = 0, limit: int = 50
+    ) -> list[User]: ...
 
-    async def soft_delete_user(self, user_id: str) -> User | None:
-        """Soft delete a user (mark as inactive or deleted).
+    # Filter & count
+    async def get_users_by_filter(
+        self, filters: dict, offset: int = 0, limit: int = 50
+    ) -> list[User]: ...
 
-        Args:
-            user_id: The string UUID of the user to soft delete.
-
-        Returns:
-            The updated User object if found, otherwise None.
-        """
-        ...
-
-    async def restore_user(self, user_id: str) -> User | None:
-        """Restore a previously soft-deleted user.
-
-        Args:
-            user_id: The string UUID of the user to restore.
-
-        Returns:
-            The restored User object if found, otherwise None.
-        """
-        ...
-
-    async def activate_user(self, user_id: str) -> User | None:
-        """Activate a user account.
-
-        Args:
-            user_id: The string UUID of the user to activate.
-
-        Returns:
-            The updated User object if found, otherwise None.
-        """
-        ...
-
-    async def deactivate_user(self, user_id: str) -> User | None:
-        """Deactivate a user account.
-
-        Args:
-            user_id: The string UUID of the user to deactivate.
-
-        Returns:
-            The updated User object if found, otherwise None.
-        """
-        ...
+    async def count_users(self, is_active: bool | None = None) -> int: ...
