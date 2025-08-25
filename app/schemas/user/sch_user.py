@@ -1,8 +1,14 @@
 """schema untuk user."""
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
-from app.schemas.base import CreateUpdateMixin, SoftDeleteMixin
+if TYPE_CHECKING:
+    from app.schemas.base import CreateUpdateMixin, SoftDeleteMixin
+else:
+    CreateUpdateMixin = object
+    SoftDeleteMixin = object
 
 
 # The core user attributes
@@ -141,7 +147,7 @@ class UserAdminResponse(UserPublicResponse):
     is_superuser: bool
 
 
-class UserSoftDeletedRead(CreateUpdateMixin, SoftDeleteMixin):
+class UserSoftDeletedResponse(CreateUpdateMixin, SoftDeleteMixin):
     """UserSoftDeletedRead schema for representing a soft-deleted user.
 
     This schema is used to expose soft-deleted user information to API clients.
@@ -152,4 +158,4 @@ class UserSoftDeletedRead(CreateUpdateMixin, SoftDeleteMixin):
 
     id: int
     username: str
-    username: str
+    email: str
