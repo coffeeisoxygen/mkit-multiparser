@@ -34,7 +34,10 @@ class UserUpdate(BaseModel):
     """
 
     model_config = ConfigDict(
-        from_attributes=True, populate_by_name=True, extra="forbid"
+        from_attributes=True,
+        populate_by_name=True,
+        extra="forbid",
+        arbitrary_types_allowed=True,
     )
     email: str | None = None
     full_name: str | None = None

@@ -9,7 +9,7 @@ from app.exception import (
     UserDuplicateError,
     UserPasswordGenericError,
 )
-from app.schemas.user.sch_user_crud import UserCreate, UserPublicResponse
+from app.schemas.user import UserCreate, UserPublicResponse
 from app.utils.hasher.interface import HasherInterface
 
 
