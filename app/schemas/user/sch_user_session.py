@@ -6,14 +6,13 @@ from app.schemas.user.sch_user import UserAdminResponse
 
 
 class SessionBase(BaseModel):
-    """Schema dasar dengan atribut-atribut yang umum untuk semua skema sesi."""
+    """Schema dasar dengan atribut umum session."""
 
     model_config = ConfigDict(
         from_attributes=True, populate_by_name=True, extra="forbid"
     )
 
     user_id: int
-    token: str
     is_active: bool
     expires_at: datetime
 
@@ -21,27 +20,27 @@ class SessionBase(BaseModel):
 class SessionCreate(BaseModel):
     """Schema untuk membuat sesi baru."""
 
-    token: str
     user_id: int
+    token: str
     ip_address: str
     user_agent: str
 
 
 class SessionInDB(SessionBase):
-    """Schema yang mewakili data sesi seperti yang disimpan di database.
-
-    Ini digunakan untuk konversi dari model ORM ke Pydantic.
-    """
+    """Schema representasi session di database (internal)."""
 
     id: int
+    token: str  # hanya internal
+    ip_address: str
+    user_agent: str
     created_at: datetime
     updated_at: datetime
 
 
 class SessionPublicResponse(SessionBase):
-    """Schema untuk respons publik session (user biasa).
+    """Schema response untuk user biasa (public).
 
-    Hanya expose data non-sensitif.
+    Tidak expose token, ip, user agent.
     """
 
     id: int
@@ -50,14 +49,14 @@ class SessionPublicResponse(SessionBase):
 
 
 class SessionAdminResponse(SessionBase):
-    """Schema untuk respons admin session.
+    """Schema response untuk admin.
 
-    Expose semua field, termasuk IP dan user agent.
+    Expose field sensitif (ip + user agent).
     """
 
     id: int
     user: UserAdminResponse | None = None
-    created_at: datetime
-    updated_at: datetime
     ip_address: str | None
     user_agent: str | None
+    created_at: datetime
+    updated_at: datetime
