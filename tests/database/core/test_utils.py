@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from app.database.core.utils import db_health_check, db_performance_metrics
@@ -6,9 +6,17 @@ from app.database.core.utils import db_health_check, db_performance_metrics
 
 @pytest.mark.asyncio
 async def test_db_health_check_success():
-    mock_engine = AsyncMock()
+    mock_engine = MagicMock()
     mock_conn = AsyncMock()
-    mock_engine.connect.return_value.__aenter__.return_value = mock_conn
+
+    class AsyncContextManager:
+        async def __aenter__(self):
+            return mock_conn
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+    mock_engine.connect.return_value = AsyncContextManager()
     mock_conn.execute.return_value = None
 
     result = await db_health_check(mock_engine)
@@ -25,8 +33,16 @@ async def test_db_health_check_engine_none():
 
 @pytest.mark.asyncio
 async def test_db_health_check_error():
-    mock_engine = AsyncMock()
-    mock_engine.connect.side_effect = Exception("DB error")
+    mock_engine = MagicMock()
+
+    class FailingAsyncContextManager:
+        async def __aenter__(self):
+            raise Exception("DB error")
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+    mock_engine.connect.return_value = FailingAsyncContextManager()
     result = await db_health_check(mock_engine)
     assert result["status"] == "error"
     assert "DB error" in result["details"]
@@ -34,9 +50,17 @@ async def test_db_health_check_error():
 
 @pytest.mark.asyncio
 async def test_db_performance_metrics_success():
-    mock_engine = AsyncMock()
+    mock_engine = MagicMock()
     mock_conn = AsyncMock()
-    mock_engine.connect.return_value.__aenter__.return_value = mock_conn
+
+    class AsyncContextManager:
+        async def __aenter__(self):
+            return mock_conn
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+    mock_engine.connect.return_value = AsyncContextManager()
     mock_conn.execute.return_value = None
 
     result = await db_performance_metrics(mock_engine)
@@ -54,8 +78,16 @@ async def test_db_performance_metrics_engine_none():
 
 @pytest.mark.asyncio
 async def test_db_performance_metrics_error():
-    mock_engine = AsyncMock()
-    mock_engine.connect.side_effect = Exception("Timeout")
+    mock_engine = MagicMock()
+
+    class FailingAsyncContextManager:
+        async def __aenter__(self):
+            raise Exception("Timeout")
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+    mock_engine.connect.return_value = FailingAsyncContextManager()
     result = await db_performance_metrics(mock_engine)
     assert result["status"] == "error"
     assert isinstance(result["ping_time_ms"], float)
