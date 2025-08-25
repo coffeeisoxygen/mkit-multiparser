@@ -6,87 +6,116 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
-class UserInDB(BaseModel):
-    """Schema untuk user yang ada di database.
+# The core user attributes
+class UserBase(BaseModel):
+    """UserBase schema for core user attributes.
 
-    schema ini di gunakan untuk mapping tipe kembalian data. agar tidak terjadi kesalahan tipe data. dan meminimalisir mapping di service layer.
+    This schema defines the basic attributes for a user, which are
+    common across different user-related operations.
 
     Args:
-        UserBase (BaseModel): shared Fields for user.
-
-    Returns:
-        UserInDB: user yang ada di database.
+        BaseModel (_type_): Schema for core user attributes.
     """
-
-    id: uuid.UUID
-    username: str
-    email: str
-    full_name: str
-    hashed_password: str
-    is_active: bool
-    is_superuser: bool
-    created_at: datetime | None
-    updated_at: datetime | None
-    deleted_at: datetime | None
-
-
-class UserBase(BaseModel):
-    """shared Fields for user."""
 
     model_config = ConfigDict(
         from_attributes=True, populate_by_name=True, extra="forbid"
     )
-
     username: str
     email: str
     full_name: str
 
 
 class UserCreate(UserBase):
-    """inherit from UserBase, dengan tambahan password."""
+    """UserCreate schema for creating a new user.
+
+    This schema extends the UserBase schema by adding the required
+    password field for user registration.
+
+    Args:
+        UserBase (_type_): Schema for creating a new user.
+    """
 
     password: str
 
 
-class UserPublicResponse(UserBase):
-    """response public untuk user.
+class UserUpdate(BaseModel):
+    """UserUpdate schema for updating user details.
 
-    ini di gunakan jika butuh schema response yang lebih ringan.
-    most cases, ini di gunakan untuk response yang tidak memerlukan informasi sensitif.
+    This schema allows partial updates to user attributes.
+
+    Args:
+        BaseModel (_type_): Schema for updating user details (input for PATCH /users/{id}).
+
     """
 
-    id: uuid.UUID
-
-
-class UserRead(UserBase):
-    id: uuid.UUID
-    is_active: bool
-    created_at: datetime | None
-    updated_at: datetime | None
-    deleted_at: datetime | None
-
-
-class UserUpdate(BaseModel):
     model_config = ConfigDict(
         from_attributes=True, populate_by_name=True, extra="forbid"
     )
-    email: str | None
-    full_name: str | None
+    email: str | None = None
+    full_name: str | None = None
 
 
 class UserUpdatePassword(UserUpdate):
+    """UserUpdatePassword schema for updating user password.
+
+    This schema extends the UserUpdate schema by adding fields
+    specific to password updates.
+
+    Args:
+        UserUpdate (_type_): Schema for updating user password.
+    """
+
     old_password: str
     new_password: str
     confirm_password: str
 
 
-class UserSoftDeletedRead(BaseModel):
-    """Schema minimal untuk user yang sudah soft delete.
+class UserInDB(UserBase):
+    """UserInDB schema for representing a user in the database.
 
-    Hanya berisi id, deleted_at, dan email.
-    Digunakan untuk response user yang statusnya sudah dihapus (soft delete).
+    This schema extends the UserBase schema by adding fields
+    specific to database representation.
+
+    Args:
+        UserBase (_type_): Schema for a full user object, including sensitive data (internal use)
     """
 
     id: uuid.UUID
+    hashed_password: str
+    is_active: bool
+    is_superuser: bool
+    created_at: datetime
+    updated_at: datetime
     deleted_at: datetime | None
+
+
+class UserPublicResponse(UserBase):
+    """UserPublicResponse schema for public user information.
+
+    This schema is used to expose user information to API clients,
+    omitting sensitive data such as passwords.
+
+    Args:
+        UserBase (_type_): Schema for public user information.
+    """
+
+    id: uuid.UUID
+    is_active: bool
+    is_superuser: bool
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: datetime | None
+
+
+class UserSoftDeletedRead(BaseModel):
+    """UserSoftDeletedRead schema for representing a soft-deleted user.
+
+    This schema is used to expose soft-deleted user information to API clients.
+
+    Args:
+        BaseModel (_type_): Schema for representing a soft-deleted user.
+    """
+
+    id: uuid.UUID
     email: str
+    deleted_at: datetime
