@@ -1,7 +1,7 @@
 from argon2 import PasswordHasher
 from argon2 import exceptions as argon2_exceptions
 
-from app.services.hasher.interface import HasherInterface
+from app.utils.hasher import HasherInterface
 
 
 class Argon2Hasher(HasherInterface):
@@ -16,5 +16,9 @@ class Argon2Hasher(HasherInterface):
     def verify(self, password: str, hashed: str) -> bool:
         try:
             return self._hasher.verify(hashed, password)
-        except argon2_exceptions.VerifyMismatchError:
+        except (
+            argon2_exceptions.VerifyMismatchError,
+            argon2_exceptions.InvalidHashError,
+            argon2_exceptions.VerificationError,
+        ):
             return False
