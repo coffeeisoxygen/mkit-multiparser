@@ -15,7 +15,7 @@ from app.exception import (
     UserNotFoundError,
     UserPasswordGenericError,
 )
-from app.schemas.user import UserPublicResponse
+from app.schemas.user import UserLoginResponse, UserPublicResponse
 from app.schemas.user.sch_user_session import SessionCreate
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
@@ -99,5 +99,5 @@ class AuthService:
         return {
             "user": UserPublicResponse.model_validate(user),
             "token": token,
-            "session": session_obj,
+            "session": UserLoginResponse.model_validate(session_obj),
         }

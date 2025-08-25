@@ -25,6 +25,3 @@ def get_session_repo(
 ) -> ISessionRepository:
     """Dependency untuk inject SessionRepository."""
     return SessionRepository(session)
-
-
-# Tambahkan factory repo lain di sini jika diperlukan
