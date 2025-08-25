@@ -30,7 +30,6 @@ class UserService:
                 message="Email already exists", context={"email": register_data.email}
             )
 
-        # Hash the password and pass as 'password'
         hasher = Argon2Hasher()
         hashed_pw = hasher.hash(register_data.password)
 

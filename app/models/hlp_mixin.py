@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class TimestampMixin:
-    """Mixin untuk created_at & updated_at."""
+    """Mixin untuk created_at & updated_at (server-side timestamps)."""
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -15,13 +15,13 @@ class TimestampMixin:
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
-        onupdate=datetime.now,
+        onupdate=func.now(),
         nullable=False,
     )
 
 
 class SoftDeleteMixin:
-    """Mixin untuk soft delete (deleted_at)."""
+    """Mixin untuk soft delete (server-side timestamp)."""
 
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
