@@ -109,3 +109,191 @@ async def test_register_user_creation_error():
     # Act & Assert
     with pytest.raises(UserCreationError):
         await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_empty_username():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="", email="test@example.com", full_name="Test User", password="pw"
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_empty_email():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="testuser", email="", full_name="Test User", password="pw"
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_empty_password():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="testuser",
+        email="test@example.com",
+        full_name="Test User",
+        password="",
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_invalid_email_format():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="testuser", email="not-an-email", full_name="Test User", password="pw"
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_whitespace_username():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="   ", email="test@example.com", full_name="Test User", password="pw"
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_whitespace_email():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="testuser", email="   ", full_name="Test User", password="pw"
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_special_char_username():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="!@#$%^&*()",
+        email="test@example.com",
+        full_name="Test User",
+        password="pw",
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_case_sensitive_username():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.side_effect = [None, MagicMock()]
+    user_repo.get_user_with_email.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data1 = UserCreate(
+        username="TestUser",
+        email="test@example.com",
+        full_name="Test User",
+        password="pw",
+    )
+    user_data2 = UserCreate(
+        username="testuser",
+        email="test2@example.com",
+        full_name="Test User",
+        password="pw",
+    )
+    await service.register_user(user_data1)
+    with pytest.raises(UserDuplicateError):
+        await service.register_user(user_data2)
+
+
+@pytest.mark.asyncio
+async def test_register_user_empty_full_name():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="testuser", email="test@example.com", full_name="", password="pw"
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)
+
+
+@pytest.mark.asyncio
+async def test_register_user_short_password():
+    user_repo = AsyncMock()
+    user_repo.get_user_with_username.return_value = None
+    user_repo.get_user_with_email.return_value = None
+    user_repo.create_user.return_value = None
+    hasher = MagicMock()
+    session_service = MagicMock()
+    token_service = MagicMock()
+    service = UserService(user_repo, hasher, session_service, token_service)
+    user_data = UserCreate(
+        username="testuser",
+        email="test@example.com",
+        full_name="Test User",
+        password="pw",
+    )
+    with pytest.raises(Exception):
+        await service.register_user(user_data)

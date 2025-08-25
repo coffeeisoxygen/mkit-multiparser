@@ -3,7 +3,7 @@
 # ...existing code...
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # The core user attributes
@@ -18,11 +18,18 @@ class UserBase(BaseModel):
     """
 
     model_config = ConfigDict(
-        from_attributes=True, populate_by_name=True, extra="forbid"
+        from_attributes=True,
+        populate_by_name=True,
+        extra="forbid",
+        str_strip_whitespace=True,
     )
-    username: str
-    email: str
-    full_name: str
+    username: str = Field(
+        description="username", min_length=2, pattern=r"^[a-zA-Z0-9_]+$"
+    )
+    email: str = Field(description="email", pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
+    full_name: str = Field(
+        description="full name", min_length=2, pattern=r"^[a-zA-Z\s]+$"
+    )
 
 
 class UserCreate(UserBase):
