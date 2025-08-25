@@ -1,6 +1,6 @@
 """schema untuk user."""
 
-import uuid
+# ...existing code...
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
@@ -80,7 +80,7 @@ class UserInDB(UserBase):
         UserBase (_type_): Schema for a full user object, including sensitive data (internal use)
     """
 
-    id: uuid.UUID
+    id: str
     hashed_password: str
     is_active: bool
     is_superuser: bool
@@ -99,7 +99,7 @@ class UserPublicResponse(UserBase):
         UserBase (_type_): Schema for public user information.
     """
 
-    id: uuid.UUID
+    id: str
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None
@@ -127,6 +127,6 @@ class UserSoftDeletedRead(BaseModel):
         BaseModel (_type_): Schema for representing a soft-deleted user.
     """
 
-    id: uuid.UUID
+    id: str
     email: str
     deleted_at: datetime
