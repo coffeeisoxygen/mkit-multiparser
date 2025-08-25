@@ -16,6 +16,7 @@ from app.exception import (
     UserPasswordGenericError,
 )
 from app.schemas.user import UserPublicResponse
+from app.schemas.user.sch_user_session import SessionCreate
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
 from app.utils.hasher.interface import HasherInterface
@@ -26,8 +27,7 @@ class AuthService:
 
     - Validasi user dan password
     - Generate JWT token (sub=username)
-    - Buat session dasar (hanya user_id)
-    - Tidak meng-handle request context (IP, user agent, dsb)
+    - Buat session dengan user_id, ip_address, user_agent
     """
 
     def __init__(
@@ -43,16 +43,22 @@ class AuthService:
         self.token_service = token_service
 
     async def authenticate_and_issue_token(
-        self, identifier: str, password: str
+        self,
+        identifier: str,
+        password: str,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ) -> dict:
         """Authenticate user and issue JWT token + session.
 
         Args:
             identifier: Username atau email user.
             password: Password user (plain).
+            ip_address: IP address dari request (opsional).
+            user_agent: User agent dari request (opsional).
 
         Returns:
-            Dict berisi user info, token, dan session dasar.
+            Dict berisi user info, token, dan session.
         """
         user = await self.user_repo.get_user_with_username(identifier)
         if not user:
@@ -70,10 +76,16 @@ class AuthService:
             logger.error("Password invalid for login")
             raise UserPasswordGenericError("Password salah.")
 
-        # # Buat session dasar (hanya user_id)
-        # session_obj = await self.session_service.create_session(
-        #     session_in=SessionCreate(user_id=user.id)
-        # )
+        # Buat session dengan user_id, ip_address, user_agent
+
+        session_obj = await self.session_service.create_session(
+            session_in=SessionCreate(
+                user_id=user.id,
+                token="",  # token session bisa diisi jika ada
+                ip_address=ip_address or "",
+                user_agent=user_agent or "",
+            )
+        )
 
         # Generate token (sub=username)
         token = self.token_service.create_token(
@@ -87,5 +99,5 @@ class AuthService:
         return {
             "user": UserPublicResponse.model_validate(user),
             "token": token,
-            # "session": session_obj,
+            "session": session_obj,
         }
