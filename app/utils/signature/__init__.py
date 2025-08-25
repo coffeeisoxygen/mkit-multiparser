@@ -1,3 +1,3 @@
-from app.services.signature.interface import ISignatureService
+from app.utils.signature.interface import ISignatureService
 
 __all__ = ["ISignatureService"]

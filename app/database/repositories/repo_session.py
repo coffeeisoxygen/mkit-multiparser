@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime
 
-from app.models.db_sessions import Session as SessionModel
-from app.schemas.session.sch_session import SessionCreate, SessionInDB
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.db_sessions import Session as SessionModel
+from app.schemas.session.sch_session import SessionCreate, SessionInDB
 
 
 class SessionRepository:
@@ -33,24 +34,22 @@ class SessionRepository:
 
     async def create_session(
         self, session_in: SessionCreate, expires_at: datetime
-    ) -> SessionInDB:
+    ) -> SessionModel:
         data = session_in.model_dump()
         db_session = SessionModel(**data, expires_at=expires_at)
         self.session.add(db_session)
-        await self.session.commit()
-        await self.session.refresh(db_session)
-        return SessionInDB.model_validate(db_session)
+        await self.session.flush()
+        return db_session
 
-    async def deactivate_session(self, session_id: int) -> bool:
+    async def deactivate_session(self, session_id: int) -> SessionModel | None:
         db_session = await self.session.get(SessionModel, session_id)
         if not db_session:
-            return False
+            return None
         db_session.is_active = False
-        await self.session.commit()
-        return True
+        await self.session.flush()
+        return db_session
 
-    async def delete_session(self, session_id: int) -> bool:
+    async def delete_session(self, session_id: int) -> int:
         stmt = delete(SessionModel).where(SessionModel.id == session_id)
         result = await self.session.execute(stmt)
-        await self.session.commit()
-        return result.rowcount > 0
+        return result.rowcount
