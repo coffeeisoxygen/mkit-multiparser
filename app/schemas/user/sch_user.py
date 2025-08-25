@@ -100,11 +100,22 @@ class UserPublicResponse(UserBase):
     """
 
     id: uuid.UUID
-    is_active: bool
-    is_superuser: bool
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None
+
+
+class UserAdminResponse(UserPublicResponse):
+    """UserAdminResponse schema for representing an admin user.
+
+    This schema is used to expose admin user information to API clients.
+
+    Args:
+        UserPublicResponse (_type_): Schema for public user information.
+    """
+
+    is_active: bool
+    is_superuser: bool
 
 
 class UserSoftDeletedRead(BaseModel):
