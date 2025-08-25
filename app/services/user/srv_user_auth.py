@@ -6,10 +6,7 @@ from app.database.repositories.intf_user import IUserRepository
 from app.exception import (
     UserCreationError,
     UserDuplicateError,
-    UserGenericError,
-    UserNotFoundError,
 )
-from app.schemas.session.sch_session import SessionCreate
 from app.schemas.user.sch_user import UserCreate, UserPublicResponse
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
@@ -44,32 +41,3 @@ class UserAuthService:
             logger.bind(username=user_data.username).error("Failed to create user")
             raise UserCreationError("Terjadi kesalahan saat membuat akun baru.")
         return UserPublicResponse.model_validate(new_user)
-
-    async def login_user(
-        self, username: str, password: str, ip_address: str, user_agent: str
-    ) -> dict:
-        """Handle user login, create session, and generate token."""
-        user = await self.user_repo.get_user_with_username(username)
-        if not user:
-            logger.bind(username=username).error("User not found")
-            raise UserNotFoundError(f"User dengan username {username} tidak ditemukan.")
-        if not self.hasher.verify(password, user.hashed_password):
-            logger.bind(username=username).error("Invalid password")
-            raise UserGenericError("Username atau password salah.")
-        # Generate token
-        token = self.token_service.create_token(
-            user.id, user.is_superuser, user.is_active
-        )
-
-        session_in = SessionCreate(
-            token=token,
-            user_id=user.id,
-            ip_address=ip_address,
-            user_agent=user_agent,
-        )
-        session = await self.session_service.create_session(session_in)
-        return {
-            "user": UserPublicResponse.model_validate(user),
-            "token": token,
-            "session": session,
-        }
