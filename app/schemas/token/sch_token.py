@@ -35,10 +35,13 @@ class UserLoginResponse(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    """Schema payload yang ada di dalam JWT."""
+    """Schema payload yang ada di dalam JWT.
 
-    model_config = ConfigDict(from_attributes=True, coerce_numbers_to_str=True)
-    sub: str | int
+    sub = username (string, immutable, unique).
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+    sub: str
     is_superuser: bool
     is_active: bool
     exp: datetime

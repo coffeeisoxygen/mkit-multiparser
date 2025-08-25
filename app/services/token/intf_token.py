@@ -1,18 +1,20 @@
 from typing import Protocol
-from uuid import UUID
 
 from app.schemas.token import TokenPayload
 
 
 class ITokenService(Protocol):
-    """Protocol for TokenService."""
+    """Protocol for TokenService.
+
+    Token akan menggunakan username sebagai sub (subject claim).
+    """
 
     expire_minutes: int
 
-    def create_token(self, user_id: UUID, is_superuser: bool, is_active: bool) -> str:
-        """Create JWT token with minimal payload."""
+    def create_token(self, username: str, is_superuser: bool, is_active: bool) -> str:
+        """Create JWT token dengan sub = username."""
         ...
 
     def decode_token(self, token: str) -> TokenPayload:
-        """Decode JWT token and validate to TokenPayload schema."""
+        """Decode JWT token dan validate ke TokenPayload schema."""
         ...

@@ -15,6 +15,7 @@ from app.exception import (
     UserNotFoundError,
     UserPasswordGenericError,
 )
+from app.schemas.session.sch_session import SessionCreate
 from app.schemas.user.sch_user import UserPublicResponse
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
@@ -22,7 +23,13 @@ from app.utils.hasher.interface import HasherInterface
 
 
 class AuthService:
-    """Service untuk authentication dan authorization user."""
+    """Service untuk authentication dan token generation.
+
+    - Validasi user dan password
+    - Generate JWT token (sub=username)
+    - Buat session dasar (hanya user_id)
+    - Tidak meng-handle request context (IP, user agent, dsb)
+    """
 
     def __init__(
         self,
@@ -36,20 +43,22 @@ class AuthService:
         self.session_service = session_service
         self.token_service = token_service
 
-    async def login_user(self, username_or_email: str, password: str) -> dict:
-        """Login user dengan username/email dan password.
+    async def authenticate_and_issue_token(
+        self, identifier: str, password: str
+    ) -> dict:
+        """Authenticate user and issue JWT token + session.
 
         Args:
-                username_or_email: Username atau email user.
-                password: Password user (plain).
+            identifier: Username atau email user.
+            password: Password user (plain).
 
         Returns:
-                Dict berisi user info, token, dan session info.
+            Dict berisi user info, token, dan session dasar.
         """
         # Cari user by username/email
-        user = await self.user_repo.get_user_with_username(username_or_email)
+        user = await self.user_repo.get_user_with_username(identifier)
         if not user:
-            user = await self.user_repo.get_user_with_email(username_or_email)
+            user = await self.user_repo.get_user_with_email(identifier)
         if not user:
             logger.error("User not found for login")
             raise UserNotFoundError("User tidak ditemukan.")
@@ -63,14 +72,14 @@ class AuthService:
             logger.error("Password invalid for login")
             raise UserPasswordGenericError("Password salah.")
 
-        # Generate session
+        # Buat session dasar (hanya user_id)
         session_obj = await self.session_service.create_session(
-            session_in={"user_id": user.id}
+            session_in=SessionCreate(user_id=user.id)
         )
 
-        # Generate token
+        # Generate token (sub=username)
         token = self.token_service.create_token(
-            user_id=user.id,
+            username=user.username,
             is_superuser=user.is_superuser,
             is_active=user.is_active,
         )
