@@ -84,6 +84,13 @@ class UserPasswordError(UserGenericError):
     status_code: int | None = 400
 
 
+class UserInActiveError(UserGenericError):
+    """Exception untuk user tidak aktif."""
+
+    default_message: str = "User is inactive."
+    status_code: int | None = 403
+
+
 # group token related
 class TokenGenericError(AppExceptionError):
     """Exception untuk kesalahan umum pada token."""

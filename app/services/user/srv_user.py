@@ -1,4 +1,4 @@
-"""Service untuk user authentication: register, login, dan integrasi session/token."""
+"""Service untuk user management."""
 
 from loguru import logger
 from pydantic import ValidationError
@@ -7,11 +7,9 @@ from app.database.repositories.intf_user import IUserRepository
 from app.exception import (
     UserCreationError,
     UserDuplicateError,
-    UserPasswordGenericError,  # import the error
+    UserPasswordGenericError,
 )
 from app.schemas.user.sch_user import UserCreate, UserPublicResponse
-from app.services.session.srv_session import SessionService
-from app.services.token.intf_token import ITokenService
 from app.utils.hasher.interface import HasherInterface
 
 
@@ -22,13 +20,9 @@ class UserService:
         self,
         user_repo: IUserRepository,
         hasher: HasherInterface,
-        session_service: SessionService,
-        token_service: ITokenService,
     ):
         self.user_repo = user_repo
         self.hasher = hasher
-        self.session_service = session_service
-        self.token_service = token_service
 
     async def register_user(self, user_data: UserCreate) -> UserPublicResponse:
         """Register user baru (admin membuat user).
