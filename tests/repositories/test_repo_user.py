@@ -3,6 +3,8 @@ from app.database.repositories.repo_user import UserRepository
 from app.schemas import UserCreate, UserUpdate
 
 
+# ruff:noqa
+# pyright: reportArgumentType = false
 # ---------- MOCK TEST ----------
 class DummySession:
     def __init__(self):
