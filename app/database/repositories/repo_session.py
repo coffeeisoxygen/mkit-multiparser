@@ -1,5 +1,5 @@
 # ...existing code...
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +22,17 @@ class SessionRepository(ISessionRepository):
         return list(result.scalars().all())
 
     async def create_session(self, session_in: SessionCreate) -> Session:
-        db_session = Session(**session_in.model_dump())
+        """Create a new session, ensuring expires_at is always set.
+
+        If expires_at is not provided, set to now + 1 hour.
+        """
+        data = session_in.model_dump()
+        # Ensure user_id is always str
+        data["user_id"] = str(data["user_id"])
+        # Set default expiry if not provided
+        if "expires_at" not in data or data["expires_at"] is None:
+            data["expires_at"] = datetime.utcnow() + timedelta(hours=1)
+        db_session = Session(**data)
         self.session.add(db_session)
         await self.session.flush()
         return db_session
