@@ -2,7 +2,8 @@ import pytest
 from app.database.core import db_performance_metrics
 from app.database.core.session import sessionmanager
 
-# app/database/core/test_utils.py
+# ruff : noqa
+# pyright: reportArgumentType = false
 
 
 @pytest.mark.asyncio
