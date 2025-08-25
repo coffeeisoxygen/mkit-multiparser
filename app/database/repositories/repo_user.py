@@ -1,4 +1,4 @@
-import uuid
+# ...existing code...
 from datetime import UTC, datetime
 
 from sqlalchemy import select
@@ -13,8 +13,8 @@ class UserRepository(IUserRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_user_with_id(self, user_id: uuid.UUID) -> User | None:
-        return await self.session.get(User, str(user_id))
+    async def get_user_with_id(self, user_id: str) -> User | None:
+        return await self.session.get(User, user_id)
 
     async def get_user_with_username(self, username: str) -> User | None:
         stmt = select(User).where(User.username == username)
@@ -41,8 +41,8 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def update_user(self, user_id: uuid.UUID, user_in: UserUpdate) -> User | None:
-        db_user = await self.session.get(User, str(user_id))
+    async def update_user(self, user_id: str, user_in: UserUpdate) -> User | None:
+        db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
 
@@ -53,16 +53,16 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def delete_user(self, user_id: uuid.UUID) -> bool:
-        db_user = await self.session.get(User, str(user_id))
+    async def delete_user(self, user_id: str) -> bool:
+        db_user = await self.session.get(User, user_id)
         if not db_user:
             return False
         await self.session.delete(db_user)
         await self.session.flush()
         return True
 
-    async def soft_delete_user(self, user_id: uuid.UUID) -> User | None:
-        db_user = await self.session.get(User, str(user_id))
+    async def soft_delete_user(self, user_id: str) -> User | None:
+        db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
         db_user.is_active = False
@@ -70,8 +70,8 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def restore_user(self, user_id: uuid.UUID) -> User | None:
-        db_user = await self.session.get(User, str(user_id))
+    async def restore_user(self, user_id: str) -> User | None:
+        db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
         db_user.is_active = True
@@ -79,16 +79,16 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def activate_user(self, user_id: uuid.UUID) -> User | None:
-        db_user = await self.session.get(User, str(user_id))
+    async def activate_user(self, user_id: str) -> User | None:
+        db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
         db_user.is_active = True
         await self.session.flush()
         return db_user
 
-    async def deactivate_user(self, user_id: uuid.UUID) -> User | None:
-        db_user = await self.session.get(User, str(user_id))
+    async def deactivate_user(self, user_id: str) -> User | None:
+        db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
         db_user.is_active = False

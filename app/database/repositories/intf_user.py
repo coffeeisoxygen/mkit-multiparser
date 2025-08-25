@@ -5,7 +5,7 @@ the contract for user-related database operations. Implementations
 should provide asynchronous methods for CRUD and user management.
 """
 
-import uuid
+# ...existing code...
 from typing import Protocol
 
 from app.models.db_user import User
@@ -19,11 +19,11 @@ class IUserRepository(Protocol):
     creating, updating, deleting, and restoring user records.
     """
 
-    async def get_user_with_id(self, user_id: uuid.UUID) -> User | None:
+    async def get_user_with_id(self, user_id: str) -> User | None:
         """Retrieve a user by their unique ID.
 
         Args:
-            user_id: The UUID of the user.
+            user_id: The string UUID of the user.
 
         Returns:
             The User object if found, otherwise None.
@@ -78,11 +78,11 @@ class IUserRepository(Protocol):
         """
         ...
 
-    async def update_user(self, user_id: uuid.UUID, user_in: UserUpdate) -> User | None:
+    async def update_user(self, user_id: str, user_in: UserUpdate) -> User | None:
         """Update an existing user record.
 
         Args:
-            user_id: The UUID of the user to update.
+            user_id: The string UUID of the user to update.
             user_in: The updated user data.
 
         Returns:
@@ -90,55 +90,55 @@ class IUserRepository(Protocol):
         """
         ...
 
-    async def delete_user(self, user_id: uuid.UUID) -> bool:
+    async def delete_user(self, user_id: str) -> bool:
         """Permanently delete a user record.
 
         Args:
-            user_id: The UUID of the user to delete.
+            user_id: The string UUID of the user to delete.
 
         Returns:
             True if deletion was successful, False otherwise.
         """
         ...
 
-    async def soft_delete_user(self, user_id: uuid.UUID) -> User | None:
+    async def soft_delete_user(self, user_id: str) -> User | None:
         """Soft delete a user (mark as inactive or deleted).
 
         Args:
-            user_id: The UUID of the user to soft delete.
+            user_id: The string UUID of the user to soft delete.
 
         Returns:
             The updated User object if found, otherwise None.
         """
         ...
 
-    async def restore_user(self, user_id: uuid.UUID) -> User | None:
+    async def restore_user(self, user_id: str) -> User | None:
         """Restore a previously soft-deleted user.
 
         Args:
-            user_id: The UUID of the user to restore.
+            user_id: The string UUID of the user to restore.
 
         Returns:
             The restored User object if found, otherwise None.
         """
         ...
 
-    async def activate_user(self, user_id: uuid.UUID) -> User | None:
+    async def activate_user(self, user_id: str) -> User | None:
         """Activate a user account.
 
         Args:
-            user_id: The UUID of the user to activate.
+            user_id: The string UUID of the user to activate.
 
         Returns:
             The updated User object if found, otherwise None.
         """
         ...
 
-    async def deactivate_user(self, user_id: uuid.UUID) -> User | None:
+    async def deactivate_user(self, user_id: str) -> User | None:
         """Deactivate a user account.
 
         Args:
-            user_id: The UUID of the user to deactivate.
+            user_id: The string UUID of the user to deactivate.
 
         Returns:
             The updated User object if found, otherwise None.
