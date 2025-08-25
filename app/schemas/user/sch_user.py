@@ -84,8 +84,8 @@ class UserInDB(UserBase):
     hashed_password: str
     is_active: bool
     is_superuser: bool
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None
+    updated_at: datetime | None
     deleted_at: datetime | None
 
 
@@ -100,8 +100,8 @@ class UserPublicResponse(UserBase):
     """
 
     id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None
+    updated_at: datetime | None
     deleted_at: datetime | None
 
 

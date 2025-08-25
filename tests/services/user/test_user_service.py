@@ -12,7 +12,15 @@ async def test_register_user_success():
     user_repo = AsyncMock()
     user_repo.get_user_with_username.return_value = None
     user_repo.get_user_with_email.return_value = None
-    user_repo.create_user.return_value = MagicMock()
+    user_repo.create_user.return_value = UserPublicResponse.model_validate({
+        "id": "user-id",
+        "username": "testuser",
+        "email": "test@example.com",
+        "full_name": "Test User",
+        "created_at": None,
+        "updated_at": None,
+        "deleted_at": None,
+    })
     hasher = MagicMock()
     hasher.hash.return_value = "hashed_pw"
     session_service = MagicMock()
