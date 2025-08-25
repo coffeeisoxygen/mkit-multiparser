@@ -29,11 +29,11 @@ class ISessionRepository(Protocol):
         """
         ...
 
-    async def get_sessions_by_user(self, user_id: str) -> list[Session]:
+    async def get_sessions_by_user(self, user_id: int) -> list[Session]:
         """Retrieve all sessions for a given user.
 
         Args:
-            user_id: The string UUID of the user.
+            user_id: The integer ID of the user.
 
         Returns:
             A list of Session objects.
@@ -62,11 +62,11 @@ class ISessionRepository(Protocol):
         """
         ...
 
-    async def delete_all_user_sessions(self, user_id: str) -> int:
+    async def delete_all_user_sessions(self, user_id: int) -> int:
         """Delete all sessions for a given user.
 
         Args:
-            user_id: The string UUID of the user.
+            user_id: The integer ID of the user.
 
         Returns:
             The number of sessions deleted.
@@ -81,8 +81,15 @@ class ISessionRepository(Protocol):
         """Deactivate a session by its ID."""
         ...
 
-    async def get_active_sessions(self, user_id: str) -> list[Session]:
-        """Get all active sessions for a user."""
+    async def get_active_sessions(self, user_id: int) -> list[Session]:
+        """Get all active sessions for a user.
+
+        Args:
+            user_id: The integer ID of the user.
+
+        Returns:
+            A list of active Session objects.
+        """
         ...
 
     async def purge_expired_sessions(self) -> int:
