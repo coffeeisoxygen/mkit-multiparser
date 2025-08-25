@@ -1,4 +1,5 @@
 import pytest
+from app.exception import PasswordInternalError
 from app.utils.hasher.implement import Argon2Hasher
 
 
@@ -17,22 +18,20 @@ def test_hash_and_verify_success(hasher):
     assert hasher.verify(password, hashed) is True
 
 
-def test_verify_wrong_password(hasher):
+def test_verify_wrong_password_raises(hasher):
     # Arrange
     password = "mypassword"
     wrong_password = "notmypassword"
     hashed = hasher.hash(password)
-    # Act
-    result = hasher.verify(wrong_password, hashed)
-    # Assert
-    assert result is False
+    # Act & Assert
+    with pytest.raises(PasswordInternalError):
+        hasher.verify(wrong_password, hashed)
 
 
-def test_verify_invalid_hash(hasher):
+def test_verify_invalid_hash_raises(hasher):
     # Arrange
     password = "testpass"
     invalid_hash = "not_a_valid_hash"
-    # Act
-    result = hasher.verify(password, invalid_hash)
-    # Assert
-    assert result is False
+    # Act & Assert
+    with pytest.raises(PasswordInternalError):
+        hasher.verify(password, invalid_hash)
