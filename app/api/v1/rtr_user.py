@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, Request
 
-from app.deps.dep_auth import get_auth_service, get_request_context
-from app.deps.dep_security import get_is_active_user
+from app.deps.dep_service import get_auth_service
+from app.deps.dep_user import get_is_active_user
+from app.deps.dep_utils import get_request_context
 
 router = APIRouter(prefix="/user", tags=["user"])
 

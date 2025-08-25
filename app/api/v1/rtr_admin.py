@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request
 
 from app.config import get_settings
 from app.custom.security.ip_filtering import IPFilter, ip_protected
-from app.deps.dep_security import get_is_admin_user
+from app.deps.dep_user import get_is_admin_user
 
 router = APIRouter()
 
