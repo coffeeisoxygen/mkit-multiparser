@@ -14,8 +14,6 @@ class SessionBase(BaseModel):
 
     user_id: int
     token: str
-    ip_address: str
-    user_agent: str
     is_active: bool
     expires_at: datetime
 
@@ -61,5 +59,5 @@ class SessionAdminResponse(SessionBase):
     user: UserAdminResponse | None = None
     created_at: datetime
     updated_at: datetime
-    ip_address: str
-    user_agent: str
+    ip_address: str | None
+    user_agent: str | None

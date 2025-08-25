@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 
 # The core user attributes
@@ -78,6 +78,26 @@ class UserUpdatePassword(UserUpdate):
     old_password: str
     new_password: str
     confirm_password: str
+
+    @field_validator("confirm_password")
+    @classmethod
+    def passwords_match(cls, v: str, info: ValidationInfo) -> str:
+        """Validates that confirm_password matches new_password.
+
+        Args:
+            v (str): The value of confirm_password.
+            info (ValidationInfo): Validation context.
+
+        Returns:
+            str: The validated confirm_password.
+
+        Raises:
+            ValueError: If confirm_password does not match new_password.
+        """
+        new_password = info.data.get("new_password")
+        if new_password is not None and v != new_password:
+            raise ValueError("Passwords do not match")
+        return v
 
 
 class UserInDB(UserBase):
