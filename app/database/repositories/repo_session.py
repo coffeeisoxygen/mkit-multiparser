@@ -1,5 +1,5 @@
 # ...existing code...
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,7 +31,7 @@ class SessionRepository(ISessionRepository):
         data["user_id"] = str(data["user_id"])
         # Set default expiry if not provided
         if "expires_at" not in data or data["expires_at"] is None:
-            data["expires_at"] = datetime.utcnow() + timedelta(hours=1)
+            data["expires_at"] = datetime.now(tz=UTC) + timedelta(hours=1)
         db_session = Session(**data)
         self.session.add(db_session)
         await self.session.flush()
@@ -69,7 +69,7 @@ class SessionRepository(ISessionRepository):
 
     async def purge_expired_sessions(self) -> int:
         """Hapus semua session yang sudah expired."""
-        now = datetime.utcnow()
+        now = datetime.now(tz=UTC)
         stmt = delete(Session).where(Session.expires_at < now)
         result = await self.session.execute(stmt)
         return result.rowcount or 0
