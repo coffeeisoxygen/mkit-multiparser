@@ -1,4 +1,86 @@
-from datetime import UTC, datetime
+import jwt
+
+
+def test_token_missing_sub():
+    service = make_service()
+    payload = {
+        # 'sub' missing
+        "is_superuser": True,
+        "is_active": True,
+        "exp": datetime.now(UTC) + timedelta(minutes=1),
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    with pytest.raises(TokenInvalidError):
+        service.decode_token(token)
+
+
+def test_token_wrong_algorithm():
+    service = make_service()
+    user_id = 123
+    username = "testuser"
+    payload = {
+        "sub": str(user_id),
+        "username": username,
+        "is_superuser": True,
+        "is_active": True,
+        "exp": datetime.now(UTC) + timedelta(minutes=1),
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS512")
+    with pytest.raises(TokenInvalidError):
+        service.decode_token(token)
+
+
+def test_token_exp_far_future():
+    service = make_service()
+    user_id = 123
+    username = "testuser"
+    payload = {
+        "sub": str(user_id),
+        "username": username,
+        "is_superuser": True,
+        "is_active": True,
+        "exp": datetime.now(UTC) + timedelta(days=3650),
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    decoded = service.decode_token(token)
+    assert decoded.exp > datetime.now(UTC)
+
+
+def test_token_with_random_claim():
+    service = make_service()
+    user_id = 123
+    username = "testuser"
+    payload = {
+        "sub": str(user_id),
+        "username": username,
+        "is_superuser": True,
+        "is_active": True,
+        "exp": datetime.now(UTC) + timedelta(minutes=1),
+        "random_claim": "random_value",
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    decoded = service.decode_token(token)
+    assert hasattr(decoded, "sub")
+
+
+def test_token_invalid_signature():
+    service = make_service()
+    user_id = 123
+    username = "testuser"
+    payload = {
+        "sub": str(user_id),
+        "username": username,
+        "is_superuser": True,
+        "is_active": True,
+        "exp": datetime.now(UTC) + timedelta(minutes=1),
+    }
+    # Encode with wrong secret
+    token = jwt.encode(payload, "wrongsecret", algorithm=ALGORITHM)
+    with pytest.raises(TokenInvalidError):
+        service.decode_token(token)
+
+
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from app.exception import TokenExpiredError, TokenInvalidError

@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import jwt
 from loguru import logger
+from pydantic import ValidationError
 
 from app.exception import (
     TokenExpiredError,
@@ -55,6 +56,11 @@ class TokenService(ITokenService):
         except jwt.InvalidTokenError as e:
             logger.bind(service="TokenService").warning("Invalid token", token=token)
             raise TokenInvalidError(cause=e) from e
+        except ValidationError as e:
+            logger.bind(service="TokenService").warning(
+                "Token validation error", token=token
+            )
+            raise TokenInvalidError("Token payload invalid.", cause=e) from e
         except Exception as e:
             logger.bind(service="TokenService").error(
                 "Authentication error occurred", token=token
