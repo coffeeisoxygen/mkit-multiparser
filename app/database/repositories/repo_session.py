@@ -23,7 +23,7 @@ class SessionRepository(ISessionRepository):
     async def get_session(self, session_id: int) -> Session | None:
         return await self.session.get(Session, session_id)
 
-    async def get_sessions_by_user(self, user_id: str) -> list[Session]:
+    async def get_sessions_by_user(self, user_id: int) -> list[Session]:
         stmt = select(Session).where(Session.user_id == user_id)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -55,7 +55,7 @@ class SessionRepository(ISessionRepository):
         await self.session.flush()
         return True
 
-    async def delete_all_user_sessions(self, user_id: str) -> int:
+    async def delete_all_user_sessions(self, user_id: int) -> int:
         stmt = delete(Session).where(Session.user_id == user_id)
         result = await self.session.execute(stmt)
         return result.rowcount or 0
@@ -72,7 +72,7 @@ class SessionRepository(ISessionRepository):
         result = await self.session.execute(stmt)
         return result.rowcount > 0
 
-    async def get_active_sessions(self, user_id: str) -> list[Session]:
+    async def get_active_sessions(self, user_id: int) -> list[Session]:
         stmt = select(Session).where(Session.user_id == user_id, Session.is_active)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

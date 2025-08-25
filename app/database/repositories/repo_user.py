@@ -21,7 +21,7 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def get_user_with_id(self, user_id: str) -> User | None:
+    async def get_user_with_id(self, user_id: int) -> User | None:
         return await self.session.get(User, user_id)
 
     async def get_user_with_username(self, username: str) -> User | None:
@@ -34,7 +34,7 @@ class UserRepository(IUserRepository):
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def update_user(self, user_id: str, user_in: UserUpdate) -> User | None:
+    async def update_user(self, user_id: int, user_in: UserUpdate) -> User | None:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
@@ -46,7 +46,7 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def delete_user(self, user_id: str) -> bool:
+    async def delete_user(self, user_id: int) -> bool:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return False
@@ -55,7 +55,7 @@ class UserRepository(IUserRepository):
         return True
 
     # Status/Role Management Methods
-    async def change_password(self, user_id: str, new_password: str) -> bool:
+    async def change_password(self, user_id: int, new_password: str) -> bool:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return False
@@ -63,7 +63,7 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return True
 
-    async def activate_user(self, user_id: str) -> User | None:
+    async def activate_user(self, user_id: int) -> User | None:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
@@ -71,7 +71,7 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def deactivate_user(self, user_id: str) -> User | None:
+    async def deactivate_user(self, user_id: int) -> User | None:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
@@ -79,7 +79,7 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def soft_delete_user(self, user_id: str) -> User | None:
+    async def soft_delete_user(self, user_id: int) -> User | None:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
@@ -88,7 +88,7 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def restore_user(self, user_id: str) -> User | None:
+    async def restore_user(self, user_id: int) -> User | None:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
@@ -97,7 +97,7 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def set_superuser(self, user_id: str) -> User | None:
+    async def set_superuser(self, user_id: int) -> User | None:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
@@ -105,7 +105,7 @@ class UserRepository(IUserRepository):
         await self.session.flush()
         return db_user
 
-    async def unset_superuser(self, user_id: str) -> User | None:
+    async def unset_superuser(self, user_id: int) -> User | None:
         db_user = await self.session.get(User, user_id)
         if not db_user:
             return None
