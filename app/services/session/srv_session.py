@@ -72,11 +72,12 @@ class SessionService:
         """
         try:
             result = await self.session_repo.deactivate_session(session_id)
-            logger.info(f"Session {session_id} deactivated")
-            return result
         except Exception as e:
             logger.error(f"Failed to deactivate session {session_id}: {e}")
             raise
+        else:
+            logger.info(f"Session {session_id} deactivated")
+            return result
 
     async def delete_session(self, session_id: int) -> bool:
         """Delete a session permanently.
@@ -85,11 +86,12 @@ class SessionService:
         """
         try:
             result = await self.session_repo.delete_session(session_id)
-            logger.info(f"Session {session_id} deleted")
-            return result
         except Exception as e:
             logger.error(f"Failed to delete session {session_id}: {e}")
             raise
+        else:
+            logger.info(f"Session {session_id} deleted")
+            return result
 
     async def get_session(self, session_id: int) -> SessionInDB | None:
         """Get session by its ID."""
@@ -146,11 +148,12 @@ class SessionService:
         """
         try:
             result = await self.session_repo.activate_session(session_id)
-            logger.info(f"Session {session_id} activated")
-            return result
         except Exception as e:
             logger.error(f"Failed to activate session {session_id}: {e}")
             raise
+        else:
+            logger.info(f"Session {session_id} activated")
+            return result
 
     async def delete_all_user_sessions(self, user_id: int) -> int:
         """Delete all sessions for a given user.
@@ -163,11 +166,12 @@ class SessionService:
         """
         try:
             result = await self.session_repo.delete_all_user_sessions(user_id)
-            logger.info(f"Deleted {result} sessions for user {user_id}")
-            return result
         except Exception as e:
             logger.error(f"Failed to delete all sessions for user {user_id}: {e}")
             raise
+        else:
+            logger.info(f"Deleted {result} sessions for user {user_id}")
+            return result
 
     async def purge_expired_sessions(self) -> int:
         """Delete all expired sessions.
@@ -177,11 +181,12 @@ class SessionService:
         """
         try:
             result = await self.session_repo.purge_expired_sessions()
-            logger.info(f"Purged {result} expired sessions")
-            return result
         except Exception as e:
             logger.error(f"Failed to purge expired sessions: {e}")
             raise
+        else:
+            logger.info(f"Purged {result} expired sessions")
+            return result
 
     async def update_session_activity(
         self, session_id: int, ip_address: str, user_agent: str
@@ -200,10 +205,11 @@ class SessionService:
             result = await self.session_repo.update_session_activity(
                 session_id, ip_address, user_agent
             )
+        except Exception as e:
+            logger.error(f"Failed to update activity for session {session_id}: {e}")
+            raise
+        else:
             logger.info(
                 f"Session {session_id} activity updated (IP: {ip_address}, UA: {user_agent})"
             )
             return result
-        except Exception as e:
-            logger.error(f"Failed to update activity for session {session_id}: {e}")
-            raise
