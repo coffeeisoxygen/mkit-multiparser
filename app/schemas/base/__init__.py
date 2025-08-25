@@ -5,6 +5,7 @@ from app.schemas.base.sch_transaction import (
     MemberTrxRequest,
     MemberTrxBaseResponse,
 )
+from app.schemas.base.sch_timemixin import CreateUpdateMixin, SoftDeleteMixin
 
 __all__ = [
     "MemberTrxReqBase",
@@ -12,4 +13,6 @@ __all__ = [
     "MemberTrxNoSign",
     "MemberTrxRequest",
     "MemberTrxBaseResponse",
+    "CreateUpdateMixin",
+    "SoftDeleteMixin",
 ]

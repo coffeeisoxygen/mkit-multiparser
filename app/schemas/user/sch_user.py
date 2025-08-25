@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
-from app.schemas.base.sch_timemixin import CreateUpdateMixin, SoftDeleteMixin
+from app.schemas.base import CreateUpdateMixin, SoftDeleteMixin
 
 
 # The core user attributes
@@ -65,14 +65,13 @@ class UserUpdate(BaseModel):
     full_name: str | None = None
 
 
-class UserUpdatePassword(UserUpdate):
+class UserUpdatePassword(BaseModel):
     """UserUpdatePassword schema for updating user password.
 
-    This schema extends the UserUpdate schema by adding fields
-    specific to password updates.
+    This schema is focused only on password update fields.
 
     Args:
-        UserUpdate (_type_): Schema for updating user password.
+        BaseModel (_type_): Schema for updating user password.
     """
 
     old_password: str
@@ -142,7 +141,7 @@ class UserAdminResponse(UserPublicResponse):
     is_superuser: bool
 
 
-class UserSoftDeletedRead(SoftDeleteMixin):
+class UserSoftDeletedRead(CreateUpdateMixin, SoftDeleteMixin):
     """UserSoftDeletedRead schema for representing a soft-deleted user.
 
     This schema is used to expose soft-deleted user information to API clients.
@@ -153,4 +152,4 @@ class UserSoftDeletedRead(SoftDeleteMixin):
 
     id: int
     username: str
-    email: str
+    username: str
