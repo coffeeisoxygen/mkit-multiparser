@@ -24,8 +24,7 @@ async def test_register_user_success():
     })
     hasher = MagicMock()
     hasher.hash.return_value = "hashed_pw"
-    session_service = MagicMock()
-    token_service = MagicMock()
+
     service = UserService(user_repo, hasher)
     user_data = UserCreate(
         username="testuser",
@@ -51,8 +50,6 @@ async def test_register_user_duplicate_username():
     user_repo = AsyncMock()
     user_repo.get_user_with_username.return_value = MagicMock(id=1)  # id as int
     hasher = MagicMock()
-    session_service = MagicMock()
-    token_service = MagicMock()
     service = UserService(user_repo, hasher)
     user_data = UserCreate(
         username="testuser",
@@ -73,8 +70,6 @@ async def test_register_user_duplicate_email():
     user_repo.get_user_with_username.return_value = None
     user_repo.get_user_with_email.return_value = MagicMock(id=1)  # id as int
     hasher = MagicMock()
-    session_service = MagicMock()
-    token_service = MagicMock()
     service = UserService(user_repo, hasher)
     user_data = UserCreate(
         username="testuser",
@@ -196,8 +191,6 @@ async def test_register_user_case_sensitive_username():
         "deleted_at": None,
     }
     hasher = MagicMock()
-    session_service = MagicMock()
-    token_service = MagicMock()
     service = UserService(user_repo, hasher)
     user_data1 = UserCreate(
         username="TestUser",
