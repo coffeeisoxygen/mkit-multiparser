@@ -1,5 +1,5 @@
 import pytest
-from app.exception.base import AppExceptionError
+from app.exception import AppExceptionError
 from app.exception.exceptions import IPBlockedError, RequestValidationError
 
 
