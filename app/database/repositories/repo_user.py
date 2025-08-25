@@ -14,25 +14,19 @@ class UserRepository(IUserRepository):
 
     async def get_user_with_id(self, user_id: uuid.UUID) -> UserInDB | None:
         user = await self.session.get(User, str(user_id))
-        if not user:
-            return None
-        return UserInDB.model_validate(user)
+        return UserInDB.model_validate(user) if user else None
 
     async def get_user_with_username(self, username: str) -> UserInDB | None:
         stmt = select(User).where(User.username == username)
         result = await self.session.execute(stmt)
         user = result.scalar_one_or_none()
-        if not user:
-            return None
-        return UserInDB.model_validate(user)
+        return UserInDB.model_validate(user) if user else None
 
     async def get_user_with_email(self, email: str) -> UserInDB | None:
         stmt = select(User).where(User.email == email)
         result = await self.session.execute(stmt)
         user = result.scalar_one_or_none()
-        if not user:
-            return None
-        return UserInDB.model_validate(user)
+        return UserInDB.model_validate(user) if user else None
 
     async def get_all_users(
         self, offset: int = 0, limit: int = 50, is_active: bool | None = None
@@ -44,8 +38,11 @@ class UserRepository(IUserRepository):
         users = result.scalars().all()
         return [UserInDB.model_validate(u) for u in users]
 
-    async def create_user(self, user_in: UserCreate) -> UserInDB | None:
-        db_user = User(**user_in.model_dump())
+    async def create_user(self, user_in: UserCreate) -> UserInDB:
+        # Use Pydantic's model_dump() to convert the input schema to a dictionary
+        # This eliminates the manual mapping.
+        user_data = user_in.model_dump()
+        db_user = User(**user_data)
         self.session.add(db_user)
         await self.session.commit()
         await self.session.refresh(db_user)
@@ -58,6 +55,7 @@ class UserRepository(IUserRepository):
         if not db_user:
             return None
 
+        # Use model_dump(exclude_unset=True) to get a dict of only the fields provided
         update_data = user_in.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_user, key, value)
@@ -72,9 +70,7 @@ class UserRepository(IUserRepository):
             return None
 
         db_user.is_active = False
-        db_user.deleted_at = datetime.now(
-            UTC
-        )  # Corrected to UTC based on our previous discussion
+        db_user.deleted_at = datetime.now(UTC)
 
         await self.session.commit()
         await self.session.refresh(db_user)

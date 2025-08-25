@@ -1,7 +1,11 @@
 import uuid
 from abc import ABC, abstractmethod
 
-from app.schemas.user.sch_user import UserCreate, UserInDB, UserUpdate
+from app.schemas.user.sch_user import (
+    UserCreate,
+    UserInDB,
+    UserUpdate,
+)
 
 
 class IUserRepository(ABC):
@@ -28,7 +32,7 @@ class IUserRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def create_user(self, user_in: UserCreate) -> UserInDB | None:
+    async def create_user(self, user_in: UserCreate) -> UserInDB:
         """Create a new user from a UserCreate schema."""
         raise NotImplementedError
 
