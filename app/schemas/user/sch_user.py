@@ -1,8 +1,8 @@
 """schema untuk user."""
 
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+
+from app.schemas.base.sch_timemixin import CreateUpdateMixin, SoftDeleteMixin
 
 
 # The core user attributes
@@ -100,7 +100,7 @@ class UserUpdatePassword(UserUpdate):
         return v
 
 
-class UserInDB(UserBase):
+class UserInDB(UserBase, CreateUpdateMixin, SoftDeleteMixin):
     """UserInDB schema for representing a user in the database.
 
     This schema extends the UserBase schema by adding fields
@@ -114,12 +114,9 @@ class UserInDB(UserBase):
     hashed_password: str
     is_active: bool
     is_superuser: bool
-    created_at: datetime | None
-    updated_at: datetime | None
-    deleted_at: datetime | None
 
 
-class UserPublicResponse(UserBase):
+class UserPublicResponse(UserBase, CreateUpdateMixin, SoftDeleteMixin):
     """UserPublicResponse schema for public user information.
 
     This schema is used to expose user information to API clients,
@@ -130,9 +127,6 @@ class UserPublicResponse(UserBase):
     """
 
     id: int
-    created_at: datetime | None
-    updated_at: datetime | None
-    deleted_at: datetime | None
 
 
 class UserAdminResponse(UserPublicResponse):
@@ -148,7 +142,7 @@ class UserAdminResponse(UserPublicResponse):
     is_superuser: bool
 
 
-class UserSoftDeletedRead(BaseModel):
+class UserSoftDeletedRead(SoftDeleteMixin):
     """UserSoftDeletedRead schema for representing a soft-deleted user.
 
     This schema is used to expose soft-deleted user information to API clients.
@@ -158,5 +152,5 @@ class UserSoftDeletedRead(BaseModel):
     """
 
     id: int
+    username: str
     email: str
-    deleted_at: datetime
