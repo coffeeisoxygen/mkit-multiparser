@@ -5,7 +5,6 @@ from app.config import get_settings
 APP_NAME = get_settings().APP.name
 
 
-# ----------------- Base Exception -----------------
 class AppExceptionError(Exception):
     """Base exception with adapter support and proper chaining."""
 

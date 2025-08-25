@@ -1,6 +1,6 @@
 from typing import Any
 
-from app.exception.base import AppExceptionError
+from app.exception.base_exc import AppExceptionError
 
 
 class RequestValidationError(AppExceptionError):
@@ -89,6 +89,13 @@ class UserInActiveError(UserGenericError):
 
     default_message: str = "User is inactive."
     status_code: int | None = 403
+
+
+class PasswordInternalError(AppExceptionError):
+    """Exception untuk kesalahan internal pada password."""
+
+    default_message: str = "Internal password error occurred."
+    status_code: int | None = 500
 
 
 # group token related
