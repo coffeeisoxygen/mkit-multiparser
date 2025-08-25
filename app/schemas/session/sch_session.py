@@ -3,6 +3,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.user.sch_user import UserAdminResponse
+
 
 class SessionBase(BaseModel):
     """Schema dasar dengan atribut-atribut yang umum untuk semua skema sesi."""
@@ -40,11 +42,25 @@ class SessionInDB(SessionBase):
 
 
 class SessionPublicResponse(SessionBase):
-    """Schema untuk respons publik, mengecualikan data sensitif.
+    """Schema untuk respons publik session (user biasa).
 
-    seperti IP address jika tidak diperlukan.
+    Hanya expose data non-sensitif.
     """
 
     id: int
     created_at: datetime
     updated_at: datetime
+
+
+class SessionAdminResponse(SessionBase):
+    """Schema untuk respons admin session.
+
+    Expose semua field, termasuk IP dan user agent.
+    """
+
+    id: int
+    user: UserAdminResponse | None = None
+    created_at: datetime
+    updated_at: datetime
+    ip_address: str
+    user_agent: str
