@@ -18,9 +18,6 @@ async def test_register_user_success():
         "username": "testuser",
         "email": "test@example.com",
         "full_name": "Test User",
-        "created_at": None,
-        "updated_at": None,
-        "deleted_at": None,
     })
     hasher = MagicMock()
     hasher.hash.return_value = "hashed_pw"
@@ -175,9 +172,6 @@ async def test_register_user_case_sensitive_username():
             "username": "testuser",
             "email": "test2@example.com",
             "full_name": "Test User",
-            "created_at": None,
-            "updated_at": None,
-            "deleted_at": None,
         },
     ]
     user_repo.get_user_with_email.return_value = None
@@ -186,9 +180,6 @@ async def test_register_user_case_sensitive_username():
         "username": "TestUser",
         "email": "test@example.com",
         "full_name": "Test User",
-        "created_at": None,
-        "updated_at": None,
-        "deleted_at": None,
     }
     hasher = MagicMock()
     service = UserService(user_repo, hasher)
