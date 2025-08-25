@@ -88,7 +88,7 @@ class UserRepository(IUserRepository):
         if not db_user:
             return None
         db_user.is_active = False
-        db_user.deleted_at = datetime.now(UTC)
+        db_user.deleted_at = datetime.now(UTC)  # UTC Manual Dsini
         await self.session.commit()
         await self.session.refresh(db_user)
         return UserInDB.model_validate(db_user)
@@ -98,7 +98,7 @@ class UserRepository(IUserRepository):
         if not db_user:
             return None
         db_user.is_active = True
-        db_user.deleted_at = None
+        db_user.deleted_at = None  # Diatur manual di sini
         await self.session.commit()
         await self.session.refresh(db_user)
         return UserInDB.model_validate(db_user)
