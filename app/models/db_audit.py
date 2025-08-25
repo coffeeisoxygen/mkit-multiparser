@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from sqlalchemy import JSON, DateTime, Integer
+from sqlalchemy import JSON, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models import Base
@@ -14,12 +12,5 @@ class AuditLog(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
-    timestamp: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False, index=True
-    )
-
     description: Mapped[dict | str] = mapped_column(JSON, nullable=False)
     detail: Mapped[JSON | None] = mapped_column(JSON, nullable=True)
-
-    def __repr__(self):
-        return f"<AuditLog id={self.id} timestamp={self.timestamp}>"
