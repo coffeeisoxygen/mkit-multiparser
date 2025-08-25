@@ -78,3 +78,19 @@ class UserRepository(IUserRepository):
         db_user.deleted_at = None
         await self.session.flush()
         return db_user
+
+    async def activate_user(self, user_id: uuid.UUID) -> User | None:
+        db_user = await self.session.get(User, str(user_id))
+        if not db_user:
+            return None
+        db_user.is_active = True
+        await self.session.flush()
+        return db_user
+
+    async def deactivate_user(self, user_id: uuid.UUID) -> User | None:
+        db_user = await self.session.get(User, str(user_id))
+        if not db_user:
+            return None
+        db_user.is_active = False
+        await self.session.flush()
+        return db_user

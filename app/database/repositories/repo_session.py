@@ -1,55 +1,40 @@
 import uuid
-from datetime import datetime
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.db_sessions import Session as SessionModel
-from app.schemas.session.sch_session import SessionCreate, SessionInDB
+from app.database.repositories.intf_session import ISessionRepository
+from app.models import Session
+from app.schemas.session.sch_session import SessionCreate
 
 
-class SessionRepository:
+class SessionRepository(ISessionRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_session_by_id(self, session_id: int) -> SessionInDB | None:
-        db_session = await self.session.get(SessionModel, session_id)
-        return SessionInDB.model_validate(db_session) if db_session else None
+    async def get_session(self, session_id: uuid.UUID) -> Session | None:
+        return await self.session.get(Session, str(session_id))
 
-    async def get_session_by_token(self, token: str) -> SessionInDB | None:
-        stmt = select(SessionModel).where(SessionModel.token == token)
+    async def get_sessions_by_user(self, user_id: uuid.UUID) -> list[Session]:
+        stmt = select(Session).where(Session.user_id == str(user_id))
         result = await self.session.execute(stmt)
-        db_session = result.scalar_one_or_none()
-        return SessionInDB.model_validate(db_session) if db_session else None
+        return list(result.scalars().all())
 
-    async def get_sessions_by_user_id(
-        self, user_id: uuid.UUID, is_active: bool | None = None
-    ) -> list[SessionInDB]:
-        stmt = select(SessionModel).where(SessionModel.user_id == str(user_id))
-        if is_active is not None:
-            stmt = stmt.where(SessionModel.is_active == is_active)
-        result = await self.session.execute(stmt)
-        sessions = result.scalars().all()
-        return [SessionInDB.model_validate(s) for s in sessions]
-
-    async def create_session(
-        self, session_in: SessionCreate, expires_at: datetime
-    ) -> SessionModel:
-        data = session_in.model_dump()
-        db_session = SessionModel(**data, expires_at=expires_at)
+    async def create_session(self, session_in: SessionCreate) -> Session:
+        db_session = Session(**session_in.model_dump())
         self.session.add(db_session)
         await self.session.flush()
         return db_session
 
-    async def deactivate_session(self, session_id: int) -> SessionModel | None:
-        db_session = await self.session.get(SessionModel, session_id)
+    async def delete_session(self, session_id: uuid.UUID) -> bool:
+        db_session = await self.session.get(Session, str(session_id))
         if not db_session:
-            return None
-        db_session.is_active = False
+            return False
+        await self.session.delete(db_session)
         await self.session.flush()
-        return db_session
+        return True
 
-    async def delete_session(self, session_id: int) -> int:
-        stmt = delete(SessionModel).where(SessionModel.id == session_id)
+    async def delete_all_user_sessions(self, user_id: uuid.UUID) -> int:
+        stmt = delete(Session).where(Session.user_id == str(user_id))
         result = await self.session.execute(stmt)
-        return result.rowcount
+        return result.rowcount or 0

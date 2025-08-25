@@ -122,3 +122,25 @@ class IUserRepository(Protocol):
             The restored User object if found, otherwise None.
         """
         ...
+
+    async def activate_user(self, user_id: uuid.UUID) -> User | None:
+        """Activate a user account.
+
+        Args:
+            user_id: The UUID of the user to activate.
+
+        Returns:
+            The updated User object if found, otherwise None.
+        """
+        ...
+
+    async def deactivate_user(self, user_id: uuid.UUID) -> User | None:
+        """Deactivate a user account.
+
+        Args:
+            user_id: The UUID of the user to deactivate.
+
+        Returns:
+            The updated User object if found, otherwise None.
+        """
+        ...
