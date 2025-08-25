@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from loguru import logger
 
+from app.config import get_settings  # Tambahkan import ini
 from app.database.repositories.intf_session import ISessionRepository
 from app.exception import SessionLimitExceededError
 from app.schemas.user.sch_user_session import SessionCreate, SessionInDB
@@ -10,15 +11,30 @@ from app.schemas.user.sch_user_session import SessionCreate, SessionInDB
 class SessionService:
     """Service layer for session management."""
 
-    def __init__(
-        self,
-        session_repo: ISessionRepository,
-        default_expiry_minutes: int = 60,
-        max_active_sessions_per_user: int = 3,  # default limit
-    ):
+    def __init__(self, session_repo: ISessionRepository):
+        """Inisialisasi SessionService dengan konfigurasi dari settings.
+
+        Args:
+            session_repo: Repository untuk operasi session.
+        """
         self.session_repo = session_repo
-        self.default_expiry_minutes = default_expiry_minutes
-        self.max_active_sessions_per_user = max_active_sessions_per_user
+        settings = get_settings()
+        self.default_expiry_minutes = getattr(
+            settings.SESSION, "DEFAULT_SESSION_EXPIRE_MINUTES", 60
+        )
+        self.max_active_sessions_per_user = getattr(
+            settings.SESSION, "MAX_ACTIVE_SESSIONS_PER_USER", 3
+        )
+
+    def _check_session_limit(self, active_sessions: list, user_id: int):
+        """Raise SessionLimitExceededError jika limit sesi aktif terlampaui."""
+        if len(active_sessions) >= self.max_active_sessions_per_user:
+            logger.warning(
+                f"User {user_id} exceeded max active sessions ({self.max_active_sessions_per_user})"
+            )
+            raise SessionLimitExceededError(
+                f"Max active sessions ({self.max_active_sessions_per_user}) exceeded for user {user_id}"
+            )
 
     async def create_session(
         self, session_in: SessionCreate, expiry_minutes: int | None = None
@@ -30,13 +46,7 @@ class SessionService:
         user_id = session_in.user_id
         try:
             active_sessions = await self.get_active_sessions(user_id)
-            if len(active_sessions) >= self.max_active_sessions_per_user:
-                logger.warning(
-                    f"User {user_id} exceeded max active sessions ({self.max_active_sessions_per_user})"
-                )
-                raise SessionLimitExceededError(
-                    f"Max active sessions ({self.max_active_sessions_per_user}) exceeded for user {user_id}"
-                )
+            self._check_session_limit(active_sessions, user_id)
             minutes = (
                 expiry_minutes
                 if expiry_minutes is not None
@@ -57,6 +67,7 @@ class SessionService:
 
     async def deactivate_session(self, session_id: int) -> bool:
         """Deactivate (invalidate) a session.
+
         #NOTE: Future - log deactivation reason
         """
         try:
@@ -69,6 +80,7 @@ class SessionService:
 
     async def delete_session(self, session_id: int) -> bool:
         """Delete a session permanently.
+
         #NOTE: Future - log deletion reason
         """
         try:
