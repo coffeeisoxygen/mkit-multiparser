@@ -1,6 +1,7 @@
-from app.services.hasher.interface import HasherInterface
 from argon2 import PasswordHasher
 from argon2 import exceptions as argon2_exceptions
+
+from app.services.hasher.interface import HasherInterface
 
 
 class Argon2Hasher(HasherInterface):

@@ -47,8 +47,8 @@ app = FastAPI(
 register_exception_handlers(app)
 
 # 4. Mount static files dan templates
-app.mount("/static", StaticFiles(directory="app/ui/static"), name="static")
-templates = Jinja2Templates(directory="app/ui/templates")
+app.mount("/static", StaticFiles(directory="app/views/static"), name="static")
+templates = Jinja2Templates(directory="app/views/templates")
 
 # 5. Tambahkan middlewares
 app.add_middleware(
