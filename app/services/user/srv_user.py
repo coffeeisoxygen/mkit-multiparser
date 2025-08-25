@@ -50,5 +50,8 @@ class UserService:
         new_user = await self.user_repo.create_user(user_data)
         if not new_user:
             logger.bind(username=user_data.username).error("Failed to create user")
-            raise UserCreationError("Terjadi kesalahan saat membuat akun baru.")
+            raise UserCreationError(
+                message="Terjadi kesalahan saat membuat akun baru.",
+                context={"username": user_data.username},
+            )
         return UserPublicResponse.model_validate(new_user)

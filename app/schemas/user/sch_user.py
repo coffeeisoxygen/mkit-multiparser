@@ -42,7 +42,11 @@ class UserCreate(UserBase):
         UserBase (_type_): Schema for creating a new user.
     """
 
-    password: str
+    password: str = Field(
+        description="password",
+        min_length=6,
+        pattern=r"^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]+$",
+    )
 
 
 class UserUpdate(BaseModel):
