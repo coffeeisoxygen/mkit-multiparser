@@ -1,10 +1,8 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 
-if TYPE_CHECKING:
-    from app.schemas.user.sch_user import UserPublicResponse
+from app.schemas.user.sch_user_base import UserPublicResponse
 
 
 class UserLoginRequest(BaseModel):

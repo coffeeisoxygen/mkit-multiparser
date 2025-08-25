@@ -13,7 +13,7 @@ repository class implementing this protocol.
 from typing import Protocol
 
 from app.models.db_user import User
-from app.schemas.user.sch_user import UserCreate, UserUpdate
+from app.schemas.user.sch_user_crud import UserCreate, UserUpdate
 
 
 class IUserRepository(Protocol):

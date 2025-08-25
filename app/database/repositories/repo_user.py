@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.repositories.intf_user import IUserRepository
 from app.models.db_user import User
-from app.schemas.user.sch_user import UserCreate, UserUpdate
+from app.schemas.user.sch_user_crud import UserCreate, UserUpdate
 
 
 class UserRepository(IUserRepository):

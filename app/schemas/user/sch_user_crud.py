@@ -1,40 +1,9 @@
 """schema untuk user."""
 
-from typing import TYPE_CHECKING
-
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
-if TYPE_CHECKING:
-    from app.schemas.base import CreateUpdateMixin, SoftDeleteMixin
-else:
-    CreateUpdateMixin = object
-    SoftDeleteMixin = object
-
-
-# The core user attributes
-class UserBase(BaseModel):
-    """UserBase schema for core user attributes.
-
-    This schema defines the basic attributes for a user, which are
-    common across different user-related operations.
-
-    Args:
-        BaseModel (_type_): Schema for core user attributes.
-    """
-
-    model_config = ConfigDict(
-        from_attributes=True,
-        populate_by_name=True,
-        extra="forbid",
-        str_strip_whitespace=True,
-    )
-    username: str = Field(
-        description="username", min_length=2, pattern=r"^[a-zA-Z0-9_]+$"
-    )
-    email: str = Field(description="email", pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
-    full_name: str = Field(
-        description="full name", min_length=2, pattern=r"^[a-zA-Z\s]+$"
-    )
+from app.models.db_user import SoftDeleteMixin
+from app.schemas.user.sch_user_base import CreateUpdateMixin, UserBase
 
 
 class UserCreate(UserBase):
@@ -119,43 +88,3 @@ class UserInDB(UserBase, CreateUpdateMixin, SoftDeleteMixin):
     hashed_password: str
     is_active: bool
     is_superuser: bool
-
-
-class UserPublicResponse(UserBase, CreateUpdateMixin, SoftDeleteMixin):
-    """UserPublicResponse schema for public user information.
-
-    This schema is used to expose user information to API clients,
-    omitting sensitive data such as passwords.
-
-    Args:
-        UserBase (_type_): Schema for public user information.
-    """
-
-    id: int
-
-
-class UserAdminResponse(UserPublicResponse):
-    """UserAdminResponse schema for representing an admin user.
-
-    This schema is used to expose admin user information to API clients.
-
-    Args:
-        UserPublicResponse (_type_): Schema for public user information.
-    """
-
-    is_active: bool
-    is_superuser: bool
-
-
-class UserSoftDeletedResponse(CreateUpdateMixin, SoftDeleteMixin):
-    """UserSoftDeletedRead schema for representing a soft-deleted user.
-
-    This schema is used to expose soft-deleted user information to API clients.
-
-    Args:
-        BaseModel (_type_): Schema for representing a soft-deleted user.
-    """
-
-    id: int
-    username: str
-    email: str

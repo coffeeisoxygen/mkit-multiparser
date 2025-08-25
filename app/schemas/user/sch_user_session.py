@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.user.sch_user import UserAdminResponse
+from app.schemas.user.sch_user_base import UserAdminResponse
 
 
 class SessionBase(BaseModel):

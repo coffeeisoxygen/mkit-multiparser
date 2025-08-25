@@ -15,7 +15,7 @@ from app.exception import (
     UserNotFoundError,
     UserPasswordGenericError,
 )
-from app.schemas.user.sch_user import UserPublicResponse
+from app.schemas.user.sch_user_crud import UserPublicResponse
 from app.schemas.user.sch_user_session import SessionCreate
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
