@@ -1,16 +1,16 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
-from app.database.repositories.intf_user import IUserRepository
-from app.services.token.intf_token import ITokenService
+from app.deps.dep_repo import get_user_repo
+from app.deps.dep_service import get_token_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/user/login")
 
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
-    token_service: ITokenService = Depends(),
-    user_repo: IUserRepository = Depends(),
+    token_service=Depends(get_token_service),
+    user_repo=Depends(get_user_repo),
 ):
     """Ambil user dari JWT token."""
     payload = token_service.decode_token(token)

@@ -3,6 +3,8 @@
 Pisahkan dari repo/service agar lebih rapi dan maintainable.
 """
 
+from fastapi import Request
+
 from app.utils.hasher.argon_hasher import Argon2Hasher
 from app.utils.hasher.interface import HasherInterface
 
@@ -16,4 +18,12 @@ def get_hasher() -> HasherInterface:
     return Argon2Hasher()
 
 
-# Tambahkan factory utility lain di sini jika diperlukan
+def get_request_context(request: Request) -> dict:
+    """Ambil info kontekstual dari request (ip, user agent, headers)."""
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+    return {
+        "client_ip": client_ip,
+        "user_agent": user_agent,
+        "headers": dict(request.headers),
+    }
