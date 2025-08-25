@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from app.exception import UserCreationError, UserDuplicateError
-from app.schemas.user.sch_user import UserCreate, UserPublicResponse
+from app.schemas.user import UserCreate, UserPublicResponse
 from app.services.user.srv_user import UserService
 from pydantic import ValidationError
 
