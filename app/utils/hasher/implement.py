@@ -1,5 +1,5 @@
 from argon2 import PasswordHasher
-from argon2 import exceptions as argon2_exceptions
+from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
 
 from app.exception import PasswordInternalError
 from app.utils.hasher import HasherInterface
@@ -15,9 +15,19 @@ class Argon2Hasher(HasherInterface):
         return self._hasher.hash(password)
 
     def verify(self, password: str, hashed: str) -> bool:
+        """Verify a password against a given hash.
+
+        Args:
+            password (str): The password to verify.
+            hashed (str): The hash to verify against.
+
+        Returns:
+            bool: True if verification succeeds.
+
+        Raises:
+            PasswordInternalError: If verification fails or hash is invalid.
+        """
         try:
             return self._hasher.verify(hashed, password)
-        except argon2_exceptions.Argon2Error as e:
-            raise PasswordInternalError(
-                message="Failed to verify password", cause=e, context={"hashed": hashed}
-            ) from e
+        except (InvalidHashError, VerificationError, VerifyMismatchError) as exc:
+            raise PasswordInternalError(f"Password verification failed: {exc}") from exc
