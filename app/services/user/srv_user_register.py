@@ -13,7 +13,7 @@ from app.services.token.intf_token import ITokenService
 from app.utils.hasher.interface import HasherInterface
 
 
-class UserAuthService:
+class UserService:
     """Service untuk register, login, dan integrasi session/token."""
 
     def __init__(
@@ -29,11 +29,22 @@ class UserAuthService:
         self.token_service = token_service
 
     async def register_user(self, user_data: UserCreate) -> UserPublicResponse:
-        """Register user baru (admin membuat user)."""
+        """Register user baru (admin membuat user).
+
+        Memastikan username dan email unik sebelum membuat user baru.
+        """
+        # Check username uniqueness
         existing_user = await self.user_repo.get_user_with_username(user_data.username)
         if existing_user:
             logger.bind(username=user_data.username).error("User already exists")
             raise UserDuplicateError(f"Username {user_data.username} sudah terdaftar.")
+
+        # Check email uniqueness
+        existing_email = await self.user_repo.get_user_with_email(user_data.email)
+        if existing_email:
+            logger.bind(email=user_data.email).error("Email already exists")
+            raise UserDuplicateError(f"Email {user_data.email} sudah terdaftar.")
+
         hashed_password = self.hasher.hash(user_data.password)
         user_data.password = hashed_password
         new_user = await self.user_repo.create_user(user_data)
