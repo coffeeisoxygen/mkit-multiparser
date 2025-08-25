@@ -1,20 +1,19 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
-from app.deps.dep_repo import get_user_repo
-from app.deps.dep_service import get_token_service
+from app.deps.dep_service import get_token_service, get_user_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/user/login")
 
 
-def get_current_user(
+async def get_current_user(
     token: str = Depends(oauth2_scheme),
     token_service=Depends(get_token_service),
-    user_repo=Depends(get_user_repo),
+    user_service=Depends(get_user_service),
 ):
     """Ambil user dari JWT token."""
     payload = token_service.decode_token(token)
-    user = user_repo.get_user_with_id(int(payload.sub))
+    user = await user_service.get_user_by_id(int(payload.sub))
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     return user
