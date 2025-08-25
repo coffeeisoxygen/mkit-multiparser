@@ -15,8 +15,7 @@ from app.exception import (
     UserNotFoundError,
     UserPasswordGenericError,
 )
-from app.schemas.user.sch_user_crud import UserPublicResponse
-from app.schemas.user.sch_user_session import SessionCreate
+from app.schemas.user import UserPublicResponse
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
 from app.utils.hasher.interface import HasherInterface
@@ -71,13 +70,14 @@ class AuthService:
             logger.error("Password invalid for login")
             raise UserPasswordGenericError("Password salah.")
 
-        # Buat session dasar (hanya user_id)
-        session_obj = await self.session_service.create_session(
-            session_in=SessionCreate(user_id=user.id)
-        )
+        # # Buat session dasar (hanya user_id)
+        # session_obj = await self.session_service.create_session(
+        #     session_in=SessionCreate(user_id=user.id)
+        # )
 
         # Generate token (sub=username)
         token = self.token_service.create_token(
+            user_id=user.id,
             username=user.username,
             is_superuser=user.is_superuser,
             is_active=user.is_active,
@@ -87,5 +87,5 @@ class AuthService:
         return {
             "user": UserPublicResponse.model_validate(user),
             "token": token,
-            "session": session_obj,
+            # "session": session_obj,
         }
