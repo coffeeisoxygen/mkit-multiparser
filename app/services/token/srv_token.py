@@ -8,10 +8,11 @@ from app.exception import (
     TokenInvalidError,
 )
 from app.schemas.token import TokenPayload
+from app.services.token.intf_token import ITokenService
 from loguru import logger
 
 
-class TokenService:
+class TokenService(ITokenService):
     """Create & validate JWT."""
 
     def __init__(self, secret_key: str, algorithm: str, expire_minutes: int):

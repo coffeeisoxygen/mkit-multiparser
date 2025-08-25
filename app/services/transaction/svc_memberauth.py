@@ -1,10 +1,10 @@
 """services untuk auth member."""
 
 from app.schemas import MemberTrxRequest
-from app.services.siganture.interface import ISignatureService
+from app.services.signature import ISignatureService
 
 
-class MemberAuthService:
+class TransactionAuth:
     """Service untuk autentikasi member."""
 
     def __init__(self, signature_service: ISignatureService):
