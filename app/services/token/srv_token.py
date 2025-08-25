@@ -8,12 +8,12 @@ from app.exception import (
     TokenGenericError,
     TokenInvalidError,
 )
-from app.schemas.token import TokenPayload
+from app.schemas.user.sch_user_token import TokenPayload
 from app.services.token.intf_token import ITokenService
 
 
 class TokenService(ITokenService):
-    """Create & validate JWT dengan sub = username."""
+    """Create & validate JWT dengan sub = user_id (immutable)."""
 
     def __init__(self, secret_key: str, algorithm: str, expire_minutes: int):
         self.secret_key = secret_key
@@ -21,19 +21,26 @@ class TokenService(ITokenService):
         self.expire_minutes = expire_minutes
         logger.bind(service="TokenService").debug("TokenService initialized")
 
-    def create_token(self, username: str, is_superuser: bool, is_active: bool) -> str:
-        """Create JWT token dengan sub = username."""
+    def create_token(
+        self,
+        user_id: int,
+        username: str,
+        is_superuser: bool,
+        is_active: bool,
+    ) -> str:
+        """Create JWT token dengan sub = user_id (immutable)."""
         expire = datetime.now(UTC) + timedelta(minutes=self.expire_minutes)
 
         payload = {
-            "sub": username,
+            "sub": str(user_id),  # selalu string sesuai JWT spec
+            "username": username,  # claim tambahan (human readable)
             "is_superuser": is_superuser,
             "is_active": is_active,
             "exp": expire,
         }
 
         token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-        logger.bind(service="TokenService").debug("Token created", username=username)
+        logger.bind(service="TokenService").debug("Token created", user_id=user_id)
         return token
 
     def decode_token(self, token: str) -> TokenPayload:

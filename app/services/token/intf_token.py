@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from app.schemas.token import TokenPayload
+from app.schemas.user import TokenPayload
 
 
 class ITokenService(Protocol):
@@ -11,8 +11,10 @@ class ITokenService(Protocol):
 
     expire_minutes: int
 
-    def create_token(self, username: str, is_superuser: bool, is_active: bool) -> str:
-        """Create JWT token dengan sub = username."""
+    def create_token(
+        self, user_id: int, username: str, is_superuser: bool, is_active: bool
+    ) -> str:
+        """Create JWT token dengan sub = user_id."""
         ...
 
     def decode_token(self, token: str) -> TokenPayload:
