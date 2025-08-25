@@ -1,3 +1,4 @@
+# ruff: noqa
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +11,8 @@ from app.database.repositories.repo_user import UserRepository
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
 from app.services.token.srv_token import TokenService
+from app.services.user.srv_auth import AuthService, HasherInterface
+from app.utils.hasher.argon_hasher import Argon2Hasher
 
 
 async def get_session():
@@ -33,18 +36,20 @@ async def get_session_manual():
 
 
 # here for all repositories.. adjust and add later
-def get_user_repo(session: AsyncSession = Depends(get_session)) -> IUserRepository:
+async def get_user_repo(
+    session: AsyncSession = Depends(get_session),
+) -> IUserRepository:
     return UserRepository(session)
 
 
-def get_session_repo(
+async def get_session_repo(
     session: AsyncSession = Depends(get_session),
 ) -> ISessionRepository:
     return SessionRepository(session)
 
 
 # here for all services...adjust and add ...
-def get_token_service() -> ITokenService:
+async def get_token_service() -> ITokenService:
     """Dependency FastAPI untuk mendapatkan TokenService.
 
     Returns:
@@ -58,7 +63,7 @@ def get_token_service() -> ITokenService:
     )
 
 
-def get_session_service(
+async def get_session_service(
     session_repo: ISessionRepository = Depends(get_session_repo),
 ) -> SessionService:
     """Dependency FastAPI untuk mendapatkan SessionService.
@@ -70,3 +75,16 @@ def get_session_service(
         SessionService: Instance dari SessionService.
     """
     return SessionService(session_repo)
+
+
+async def get_hasher() -> HasherInterface:
+    return Argon2Hasher()
+
+
+async def get_auth_service(
+    user_repo: IUserRepository = Depends(get_user_repo),
+    hasher: HasherInterface = Depends(get_hasher),
+    session_service: SessionService = Depends(get_session_service),
+    token_service: ITokenService = Depends(get_token_service),
+) -> AuthService:
+    return AuthService(user_repo, hasher, session_service, token_service)
