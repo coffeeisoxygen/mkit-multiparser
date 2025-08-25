@@ -1,6 +1,6 @@
 import pytest
 from app.exception import PasswordInternalError
-from app.utils.hasher.implement import Argon2Hasher
+from app.utils.hasher.argon_hasher import Argon2Hasher
 
 
 @pytest.fixture
