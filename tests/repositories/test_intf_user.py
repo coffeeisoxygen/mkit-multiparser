@@ -1,3 +1,4 @@
+# ruff:noqa
 import pytest
 from app.database.repositories.intf_user import IUserRepository
 from app.models.db_user import User
