@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime, timedelta
 
 from app.database.repositories.intf_session import ISessionRepository
@@ -24,7 +23,11 @@ class SessionService:
             else self.default_expiry_minutes
         )
         expires_at = datetime.now() + timedelta(minutes=minutes)
-        return await self.session_repo.create_session(session_in, expires_at)
+        session_data = session_in.model_dump()
+        session_data["expires_at"] = expires_at
+        session_obj = SessionCreate(**session_data)
+        db_obj = await self.session_repo.create_session(session_obj)
+        return SessionInDB.model_validate(db_obj, from_attributes=True)
 
     async def deactivate_session(self, session_id: int) -> bool:
         """Deactivate (invalidate) a session."""
@@ -34,16 +37,77 @@ class SessionService:
         """Delete a session permanently."""
         return await self.session_repo.delete_session(session_id)
 
-    async def get_session_by_id(self, session_id: int) -> SessionInDB | None:
+    async def get_session(self, session_id: int) -> SessionInDB | None:
         """Get session by its ID."""
-        return await self.session_repo.get_session_by_id(session_id)
+        db_obj = await self.session_repo.get_session(session_id)
+        if db_obj is None:
+            return None
+        return SessionInDB.model_validate(db_obj, from_attributes=True)
 
-    async def get_session_by_token(self, token: str) -> SessionInDB | None:
-        """Get session by token."""
-        return await self.session_repo.get_session_by_token(token)
+    async def get_sessions_by_user(self, user_id: str) -> list[SessionInDB]:
+        """Get all sessions for a user."""
+        db_objs = await self.session_repo.get_sessions_by_user(user_id)
+        return [
+            SessionInDB.model_validate(obj, from_attributes=True) for obj in db_objs
+        ]
 
-    async def get_sessions_by_user_id(
-        self, user_id: uuid.UUID, is_active: bool | None = None
-    ) -> list[SessionInDB]:
-        """Get all sessions for a user, optionally filter by active status."""
-        return await self.session_repo.get_sessions_by_user_id(user_id, is_active)
+    async def get_active_sessions(self, user_id: str) -> list[SessionInDB]:
+        """Get all active sessions for a user.
+
+        Args:
+            user_id: The string UUID of the user.
+
+        Returns:
+            List of active SessionInDB objects.
+        """
+        db_objs = await self.session_repo.get_active_sessions(user_id)
+        return [
+            SessionInDB.model_validate(obj, from_attributes=True) for obj in db_objs
+        ]
+
+    async def activate_session(self, session_id: int) -> bool:
+        """Activate a session by its ID.
+
+        Args:
+            session_id: The integer ID of the session.
+
+        Returns:
+            True if activation was successful, False otherwise.
+        """
+        return await self.session_repo.activate_session(session_id)
+
+    async def delete_all_user_sessions(self, user_id: str) -> int:
+        """Delete all sessions for a given user.
+
+        Args:
+            user_id: The string UUID of the user.
+
+        Returns:
+            The number of sessions deleted.
+        """
+        return await self.session_repo.delete_all_user_sessions(user_id)
+
+    async def purge_expired_sessions(self) -> int:
+        """Delete all expired sessions.
+
+        Returns:
+            The number of sessions deleted.
+        """
+        return await self.session_repo.purge_expired_sessions()
+
+    async def update_session_activity(
+        self, session_id: int, ip_address: str, user_agent: str
+    ) -> bool:
+        """Update session activity info (IP, user agent).
+
+        Args:
+            session_id: The integer ID of the session.
+            ip_address: The IP address to update.
+            user_agent: The user agent string to update.
+
+        Returns:
+            True if update was successful, False otherwise.
+        """
+        return await self.session_repo.update_session_activity(
+            session_id, ip_address, user_agent
+        )
