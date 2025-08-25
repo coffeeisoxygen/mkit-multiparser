@@ -15,8 +15,8 @@ from app.exception import (
     UserNotFoundError,
     UserPasswordGenericError,
 )
-from app.schemas.session.sch_session import SessionCreate
 from app.schemas.user.sch_user import UserPublicResponse
+from app.schemas.user.sch_user_session import SessionCreate
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
 from app.utils.hasher.interface import HasherInterface
@@ -55,7 +55,6 @@ class AuthService:
         Returns:
             Dict berisi user info, token, dan session dasar.
         """
-        # Cari user by username/email
         user = await self.user_repo.get_user_with_username(identifier)
         if not user:
             user = await self.user_repo.get_user_with_email(identifier)

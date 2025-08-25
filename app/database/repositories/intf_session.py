@@ -8,7 +8,7 @@ should provide asynchronous methods for CRUD and session management.
 from typing import Protocol
 
 from app.models import Session
-from app.schemas.session.sch_session import SessionCreate
+from app.schemas.user.sch_user_session import SessionCreate
 
 
 class ISessionRepository(Protocol):

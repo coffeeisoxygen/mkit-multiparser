@@ -1,5 +1,4 @@
 from datetime import datetime
-from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
@@ -23,7 +22,7 @@ class UserLoginResponse(BaseModel):
     """Schema untuk response login user + token."""
 
     # data user (public info)
-    id: UUID
+    id: int
     username: str
     email: str
     full_name: str

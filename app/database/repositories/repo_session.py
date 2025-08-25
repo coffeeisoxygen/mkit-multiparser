@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.repositories.intf_session import ISessionRepository
 from app.models import Session
-from app.schemas.session.sch_session import SessionCreate
+from app.schemas.user.sch_user_session import SessionCreate
 
 
 def _ensure_utc(dt: datetime) -> datetime:

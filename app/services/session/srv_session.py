@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from app.database.repositories.intf_session import ISessionRepository
-from app.schemas.session.sch_session import SessionCreate, SessionInDB
+from app.schemas.user.sch_user_session import SessionCreate, SessionInDB
 
 
 class SessionService:
@@ -44,18 +44,18 @@ class SessionService:
             return None
         return SessionInDB.model_validate(db_obj, from_attributes=True)
 
-    async def get_sessions_by_user(self, user_id: str) -> list[SessionInDB]:
+    async def get_sessions_by_user(self, user_id: int) -> list[SessionInDB]:
         """Get all sessions for a user."""
         db_objs = await self.session_repo.get_sessions_by_user(user_id)
         return [
             SessionInDB.model_validate(obj, from_attributes=True) for obj in db_objs
         ]
 
-    async def get_active_sessions(self, user_id: str) -> list[SessionInDB]:
+    async def get_active_sessions(self, user_id: int) -> list[SessionInDB]:
         """Get all active sessions for a user.
 
         Args:
-            user_id: The string UUID of the user.
+            user_id: The integer ID of the user.
 
         Returns:
             List of active SessionInDB objects.
@@ -76,11 +76,11 @@ class SessionService:
         """
         return await self.session_repo.activate_session(session_id)
 
-    async def delete_all_user_sessions(self, user_id: str) -> int:
+    async def delete_all_user_sessions(self, user_id: int) -> int:
         """Delete all sessions for a given user.
 
         Args:
-            user_id: The string UUID of the user.
+            user_id: The integer ID of the user.
 
         Returns:
             The number of sessions deleted.
