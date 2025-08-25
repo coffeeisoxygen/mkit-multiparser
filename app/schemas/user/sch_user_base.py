@@ -4,11 +4,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class CreateUpdateMixin(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     created_at: datetime | None
     updated_at: datetime | None
 
 
 class SoftDeleteMixin(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     deleted_at: datetime | None
 
 
