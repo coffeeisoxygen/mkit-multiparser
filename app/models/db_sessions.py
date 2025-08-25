@@ -18,6 +18,7 @@ class Session(Base, TimestampMixin):
         user_agent (str): User agent string.
         last_activity (datetime): Last activity timestamp.
         is_active (bool): Session active status.
+        expires_at (datetime): Session expiry timestamp.
         user (User): Relationship to User.
     """
 
@@ -30,8 +31,12 @@ class Session(Base, TimestampMixin):
     token: Mapped[str] = mapped_column(String, unique=True, index=True)
     ip_address: Mapped[str] = mapped_column(String)
     user_agent: Mapped[str] = mapped_column(String)
-    last_activity: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
-    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    # expires_at sebaiknya dihitung di service, dan nilainya diatur di sini
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
 
     user = relationship("User", back_populates="sessions")
