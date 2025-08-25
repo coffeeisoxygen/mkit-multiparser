@@ -10,6 +10,60 @@ from app.schemas.user.sch_user import UserCreate, UserUpdate
 
 
 class UserRepository(IUserRepository):
+    async def change_password(self, user_id: str, new_password: str) -> bool:
+        db_user = await self.session.get(User, user_id)
+        if not db_user:
+            return False
+        db_user.hashed_password = new_password
+        await self.session.flush()
+        return True
+
+    async def set_superuser(self, user_id: str) -> User | None:
+        db_user = await self.session.get(User, user_id)
+        if not db_user:
+            return None
+        db_user.is_superuser = True
+        await self.session.flush()
+        return db_user
+
+    async def unset_superuser(self, user_id: str) -> User | None:
+        db_user = await self.session.get(User, user_id)
+        if not db_user:
+            return None
+        db_user.is_superuser = False
+        await self.session.flush()
+        return db_user
+
+    async def get_superusers(self, offset: int = 0, limit: int = 50) -> list[User]:
+        stmt = select(User).where(User.is_superuser).offset(offset).limit(limit)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_soft_deleted_users(
+        self, offset: int = 0, limit: int = 50
+    ) -> list[User]:
+        stmt = select(User).where(User.is_active.is_(False)).offset(offset).limit(limit)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_users_by_filter(
+        self, filters: dict, offset: int = 0, limit: int = 50
+    ) -> list[User]:
+        stmt = select(User)
+        for key, value in filters.items():
+            if hasattr(User, key):
+                stmt = stmt.where(getattr(User, key) == value)
+        stmt = stmt.offset(offset).limit(limit)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def count_users(self, is_active: bool | None = None) -> int:
+        stmt = select(User)
+        if is_active is not None:
+            stmt = stmt.where(User.is_active == is_active)
+        result = await self.session.execute(stmt)
+        return len(result.scalars().all())
+
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -36,7 +90,9 @@ class UserRepository(IUserRepository):
         return list(result.scalars().all())
 
     async def create_user(self, user_in: UserCreate) -> User:
-        db_user = User(**user_in.model_dump())
+        # Ambil password yang sudah di-hash dari service
+        user_data = user_in.model_dump(exclude={"password"})
+        db_user = User(**user_data, hashed_password=user_in.password)
         self.session.add(db_user)
         await self.session.flush()
         return db_user
