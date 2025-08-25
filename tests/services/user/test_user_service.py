@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from pydantic import ValidationError
 from app.exception import UserCreationError, UserDuplicateError
 from app.schemas.user.sch_user import UserCreate, UserPublicResponse
 from app.services.user.srv_user import UserService
@@ -121,11 +122,8 @@ async def test_register_user_empty_username():
     session_service = MagicMock()
     token_service = MagicMock()
     service = UserService(user_repo, hasher, session_service, token_service)
-    user_data = UserCreate(
-        username="", email="test@example.com", full_name="Test User", password="pw"
-    )
-    with pytest.raises(Exception):
-        await service.register_user(user_data)
+    with pytest.raises(ValidationError):
+        UserCreate(username="", email="test@example.com", full_name="Test User", password="pw")
 
 
 @pytest.mark.asyncio
@@ -138,11 +136,8 @@ async def test_register_user_empty_email():
     session_service = MagicMock()
     token_service = MagicMock()
     service = UserService(user_repo, hasher, session_service, token_service)
-    user_data = UserCreate(
-        username="testuser", email="", full_name="Test User", password="pw"
-    )
-    with pytest.raises(Exception):
-        await service.register_user(user_data)
+    with pytest.raises(ValidationError):
+        UserCreate(username="testuser", email="", full_name="Test User", password="pw")
 
 
 @pytest.mark.asyncio
@@ -155,14 +150,8 @@ async def test_register_user_empty_password():
     session_service = MagicMock()
     token_service = MagicMock()
     service = UserService(user_repo, hasher, session_service, token_service)
-    user_data = UserCreate(
-        username="testuser",
-        email="test@example.com",
-        full_name="Test User",
-        password="",
-    )
-    with pytest.raises(Exception):
-        await service.register_user(user_data)
+    with pytest.raises(ValidationError):
+        UserCreate(username="testuser", email="test@example.com", full_name="Test User", password="")
 
 
 @pytest.mark.asyncio
@@ -175,11 +164,8 @@ async def test_register_user_invalid_email_format():
     session_service = MagicMock()
     token_service = MagicMock()
     service = UserService(user_repo, hasher, session_service, token_service)
-    user_data = UserCreate(
-        username="testuser", email="not-an-email", full_name="Test User", password="pw"
-    )
-    with pytest.raises(Exception):
-        await service.register_user(user_data)
+    with pytest.raises(ValidationError):
+        UserCreate(username="testuser", email="not-an-email", full_name="Test User", password="pw")
 
 
 @pytest.mark.asyncio
@@ -192,11 +178,8 @@ async def test_register_user_whitespace_username():
     session_service = MagicMock()
     token_service = MagicMock()
     service = UserService(user_repo, hasher, session_service, token_service)
-    user_data = UserCreate(
-        username="   ", email="test@example.com", full_name="Test User", password="pw"
-    )
-    with pytest.raises(Exception):
-        await service.register_user(user_data)
+    with pytest.raises(ValidationError):
+        UserCreate(username="   ", email="test@example.com", full_name="Test User", password="pw")
 
 
 @pytest.mark.asyncio
@@ -209,11 +192,8 @@ async def test_register_user_whitespace_email():
     session_service = MagicMock()
     token_service = MagicMock()
     service = UserService(user_repo, hasher, session_service, token_service)
-    user_data = UserCreate(
-        username="testuser", email="   ", full_name="Test User", password="pw"
-    )
-    with pytest.raises(Exception):
-        await service.register_user(user_data)
+    with pytest.raises(ValidationError):
+        UserCreate(username="testuser", email="   ", full_name="Test User", password="pw")
 
 
 @pytest.mark.asyncio
@@ -226,14 +206,8 @@ async def test_register_user_special_char_username():
     session_service = MagicMock()
     token_service = MagicMock()
     service = UserService(user_repo, hasher, session_service, token_service)
-    user_data = UserCreate(
-        username="!@#$%^&*()",
-        email="test@example.com",
-        full_name="Test User",
-        password="pw",
-    )
-    with pytest.raises(Exception):
-        await service.register_user(user_data)
+    with pytest.raises(ValidationError):
+        UserCreate(username="!@#$%^&*()", email="test@example.com", full_name="Test User", password="pw")
 
 
 @pytest.mark.asyncio
@@ -272,11 +246,8 @@ async def test_register_user_empty_full_name():
     session_service = MagicMock()
     token_service = MagicMock()
     service = UserService(user_repo, hasher, session_service, token_service)
-    user_data = UserCreate(
-        username="testuser", email="test@example.com", full_name="", password="pw"
-    )
-    with pytest.raises(Exception):
-        await service.register_user(user_data)
+    with pytest.raises(ValidationError):
+        UserCreate(username="testuser", email="test@example.com", full_name="", password="pw")
 
 
 @pytest.mark.asyncio
