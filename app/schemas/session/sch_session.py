@@ -13,7 +13,7 @@ class SessionBase(BaseModel):
         from_attributes=True, populate_by_name=True, extra="forbid"
     )
 
-    user_id: uuid.UUID
+    user_id: int
     token: str
     ip_address: str
     user_agent: str

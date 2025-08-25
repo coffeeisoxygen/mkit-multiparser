@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class TokenResponse(BaseModel):
@@ -37,7 +37,8 @@ class UserLoginResponse(BaseModel):
 class TokenPayload(BaseModel):
     """Schema payload yang ada di dalam JWT."""
 
-    sub: str  # biasanya user_id
+    model_config = ConfigDict(from_attributes=True, coerce_numbers_to_str=True)
+    sub: str | int
     is_superuser: bool
     is_active: bool
     exp: datetime
