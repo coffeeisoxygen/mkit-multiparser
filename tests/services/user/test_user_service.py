@@ -97,8 +97,7 @@ async def test_register_user_creation_error():
     user_repo.create_user.return_value = None
     hasher = MagicMock()
     hasher.hash.return_value = "hashed_pw"
-    session_service = MagicMock()
-    token_service = MagicMock()
+
     service = UserService(user_repo, hasher)
     user_data = UserCreate(
         username="testuser",
