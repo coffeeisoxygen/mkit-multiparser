@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
@@ -25,7 +24,7 @@ class SessionCreate(BaseModel):
     """Schema untuk membuat sesi baru."""
 
     token: str
-    user_id: uuid.UUID
+    user_id: int
     ip_address: str
     user_agent: str
 
