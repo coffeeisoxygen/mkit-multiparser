@@ -132,3 +132,17 @@ class TokenInvalidError(TokenGenericError):
 
     default_message: str = "Token invalid."
     status_code: int | None = 401
+
+
+class SessionGenericError(AppExceptionError):
+    """Exception untuk kesalahan umum pada session."""
+
+    default_message: str = "Session error occurred."
+    status_code: int | None = 400
+
+
+class SessionLimitExceededError(SessionGenericError):
+    """Exception untuk batas maksimum sesi yang terlampaui."""
+
+    default_message: str = "Session limit exceeded."
+    status_code: int | None = 429

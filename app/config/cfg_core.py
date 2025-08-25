@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from app.config.cfg_cors import ConfigCors
 
 from app.config.cfg_env import ConfigEnvironment
-from app.config.cfg_jwt import ConfigJwt
+from app.config.cffg_token_session import ConfigJwt, ConfigSession
 from app.config.cfg_module import ConfigModule
 from app.config.cfg_dbase import ConfigDatabase
 
@@ -43,3 +43,4 @@ class Settings(BaseSettings):
     JWT: ConfigJwt = ConfigJwt()
     DGP: ConfigModule
     DB: ConfigDatabase
+    SESSION: ConfigSession
