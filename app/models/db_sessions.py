@@ -16,7 +16,6 @@ class Session(Base, TimestampMixin):
         token (str): Session token, unique.
         ip_address (str): IP address of the session.
         user_agent (str): User agent string.
-        last_activity (datetime): Last activity timestamp.
         is_active (bool): Session active status.
         expires_at (datetime): Session expiry timestamp.
         user (User): Relationship to User.
