@@ -11,8 +11,6 @@ class Session(Base, TimestampMixin):
     """Session model for tracking user sessions.
 
     Attributes:
-        id (str): Primary key, UUID string.
-        user_id (str): Foreign key to User.id (UUID).
         token (str): Session token, unique.
         ip_address (str): IP address of the session.
         user_agent (str): User agent string.
@@ -24,8 +22,8 @@ class Session(Base, TimestampMixin):
     __tablename__ = "sessions"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("users.id"), nullable=False, index=True
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), nullable=False, index=True
     )
     token: Mapped[str] = mapped_column(String, unique=True, index=True)
     ip_address: Mapped[str] = mapped_column(String)
