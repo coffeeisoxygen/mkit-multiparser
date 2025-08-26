@@ -35,6 +35,22 @@ class UserBase(BaseModel):
     )
 
 
+class UserInDB(UserBase, CreateUpdateMixin, SoftDeleteMixin):
+    """UserInDB schema for representing a user in the database.
+
+    This schema extends the UserBase schema by adding fields
+    specific to database representation.
+
+    Args:
+        UserBase (_type_): Schema for a full user object, including sensitive data (internal use)
+    """
+
+    id: int
+    hashed_password: str
+    is_active: bool
+    is_superuser: bool
+
+
 class UserPublicResponse(UserBase):
     """UserPublicResponse schema for public user information.
 

@@ -17,6 +17,7 @@ from app.exception import (
 )
 from app.schemas.user import UserLoginResponse, UserPublicResponse
 from app.schemas.user.sch_user_session import SessionCreate
+from app.schemas.user.sch_user_token import TokenResponse
 from app.services.session.srv_session import SessionService
 from app.services.token.intf_token import ITokenService
 from app.utils.hasher.interface import HasherInterface
@@ -42,24 +43,8 @@ class AuthService:
         self.session_service = session_service
         self.token_service = token_service
 
-    async def authenticate_and_issue_token(
-        self,
-        identifier: str,
-        password: str,
-        ip_address: str | None = None,
-        user_agent: str | None = None,
-    ) -> dict:
-        """Authenticate user and issue JWT token + session.
-
-        Args:
-            identifier: Username atau email user.
-            password: Password user (plain).
-            ip_address: IP address dari request (opsional).
-            user_agent: User agent dari request (opsional).
-
-        Returns:
-            Dict berisi user info, token, dan session.
-        """
+    async def auth_user(self, identifier: str, password: str):
+        """Validasi user dan password, return user object jika valid."""
         user = await self.user_repo.get_user_with_username(identifier)
         if not user:
             user = await self.user_repo.get_user_with_email(identifier)
@@ -71,14 +56,30 @@ class AuthService:
             logger.error("User inactive for login")
             raise UserInActiveError("User tidak aktif.")
 
-        # Validasi password
         if not self.hasher.verify(password, user.hashed_password):
             logger.error("Password invalid for login")
             raise UserPasswordGenericError("Password salah.")
+        return user
 
-        # Buat session dengan user_id, ip_address, user_agent
+    def create_token(self, user) -> TokenResponse:
+        """Generate JWT token dari user object dan bungkus ke TokenResponse."""
+        token_str = self.token_service.create_token(
+            user_id=user.id,
+            username=user.username,
+            is_superuser=user.is_superuser,
+            is_active=user.is_active,
+        )
+        # expires_in diambil dari config token_service
+        return TokenResponse(
+            access_token=token_str,
+            expires_in=getattr(self.token_service, "expire_minutes", 60),
+        )
 
-        session_obj = await self.session_service.create_session(
+    async def create_session(
+        self, user, ip_address: str | None = None, user_agent: str | None = None
+    ):
+        """Buat session dari user object dan info request."""
+        return await self.session_service.create_session(
             session_in=SessionCreate(
                 user_id=user.id,
                 token="",  # token session bisa diisi jika ada
@@ -87,15 +88,17 @@ class AuthService:
             )
         )
 
-        # Generate token (sub=username)
-        token = self.token_service.create_token(
-            user_id=user.id,
-            username=user.username,
-            is_superuser=user.is_superuser,
-            is_active=user.is_active,
-        )
-
-        # Build response
+    async def authenticate_and_issue_token(
+        self,
+        identifier: str,
+        password: str,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+    ) -> dict:
+        """Orkestrasi: auth, session, token, build response."""
+        user = await self.auth_user(identifier, password)
+        session_obj = await self.create_session(user, ip_address, user_agent)
+        token = self.create_token(user)
         return {
             "user": UserPublicResponse.model_validate(user),
             "token": token,

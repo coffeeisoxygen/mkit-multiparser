@@ -2,8 +2,7 @@
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
-from app.models.db_user import SoftDeleteMixin
-from app.schemas.user.sch_user_base import CreateUpdateMixin, UserBase
+from app.schemas.user.sch_user_base import UserBase
 
 
 class UserCreate(UserBase):
@@ -75,19 +74,3 @@ class UserUpdatePassword(BaseModel):
         if new_password is not None and v != new_password:
             raise ValueError("Passwords do not match")
         return v
-
-
-class UserInDB(UserBase, CreateUpdateMixin, SoftDeleteMixin):
-    """UserInDB schema for representing a user in the database.
-
-    This schema extends the UserBase schema by adding fields
-    specific to database representation.
-
-    Args:
-        UserBase (_type_): Schema for a full user object, including sensitive data (internal use)
-    """
-
-    id: int
-    hashed_password: str
-    is_active: bool
-    is_superuser: bool
