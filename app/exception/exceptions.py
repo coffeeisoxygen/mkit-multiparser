@@ -41,6 +41,13 @@ class InternalServiceError(AppExceptionError):
     status_code: int | None = 500
 
 
+class EntityNotFoundError(InternalServiceError):
+    """Exception untuk entitas yang tidak ditemukan."""
+
+    default_message: str = "Entity not found."
+    status_code: int | None = 404
+
+
 # Group User exceptions Error
 class UserGenericError(AppExceptionError):
     """Exception untuk kesalahan umum pada user."""
