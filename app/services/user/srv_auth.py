@@ -9,7 +9,7 @@ Fitur utama:
 
 from loguru import logger
 
-from app.database.repositories.intf_user import IUserRepository
+from app.database.interfaces import IUserRepository
 from app.exception import (
     UserInActiveError,
     UserNotFoundError,
@@ -46,9 +46,9 @@ class AuthService:
 
     async def auth_user(self, identifier: str, password: str):
         """Validasi user dan password, return user object jika valid."""
-        user = await self.user_repo.get_user_with_username(identifier)
+        user = await self.user_repo.get_by_username(identifier)
         if not user:
-            user = await self.user_repo.get_user_with_email(identifier)
+            user = await self.user_repo.get_by_email(identifier)
         if not user:
             logger.error("User not found for login")
             raise UserNotFoundError("User tidak ditemukan.")

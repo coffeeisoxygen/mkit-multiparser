@@ -1,8 +1,6 @@
 # ruff: noqa
 
-# pyright: reportUndefinedVariable=false, reportGeneralTypeIssues=false, reportMissingImports=false
-
-# pyright: reportUnusedImport=false
+# pyright: reportUndefinedVariable=false, reportGeneralTypeIssues=false, reportMissingImports=false, reportUnusedImport=false
 from sqlalchemy.orm import DeclarativeBase
 
 
