@@ -1,103 +1,103 @@
-"""Session repository interface definitions.
+# """Session repository interface definitions.
 
-This module defines the ISessionRepository protocol, which specifies
-the contract for session-related database operations. Implementations
-should provide asynchronous methods for CRUD and session management.
-"""
+# This module defines the ISessionRepository protocol, which specifies
+# the contract for session-related database operations. Implementations
+# should provide asynchronous methods for CRUD and session management.
+# """
 
-from typing import Protocol
+# from typing import Protocol
 
-from app.models import Session
-from app.schemas.user.sch_user_session import SessionCreate
+# from app.models import Session
+# from app.schemas.user.sch_user_session import SessionCreate
 
 
-class ISessionRepository(Protocol):
-    """Protocol for session repository operations.
+# class ISessionRepository(Protocol):
+#     """Protocol for session repository operations.
 
-    This interface defines asynchronous methods for retrieving,
-    creating, and deleting session records.
-    """
+#     This interface defines asynchronous methods for retrieving,
+#     creating, and deleting session records.
+#     """
 
-    async def get_session(self, session_id: int) -> Session | None:
-        """Retrieve a session by its unique ID.
+#     async def get_session(self, session_id: int) -> Session | None:
+#         """Retrieve a session by its unique ID.
 
-        Args:
-            session_id: The integer ID of the session.
+#         Args:
+#             session_id: The integer ID of the session.
 
-        Returns:
-            The Session object if found, otherwise None.
-        """
-        ...
+#         Returns:
+#             The Session object if found, otherwise None.
+#         """
+#         ...
 
-    async def get_sessions_by_user(self, user_id: int) -> list[Session]:
-        """Retrieve all sessions for a given user.
+#     async def get_sessions_by_user(self, user_id: int) -> list[Session]:
+#         """Retrieve all sessions for a given user.
 
-        Args:
-            user_id: The integer ID of the user.
+#         Args:
+#             user_id: The integer ID of the user.
 
-        Returns:
-            A list of Session objects.
-        """
-        ...
+#         Returns:
+#             A list of Session objects.
+#         """
+#         ...
 
-    async def create_session(self, session_in: SessionCreate) -> Session:
-        """Create a new session record.
+#     async def create_session(self, session_in: SessionCreate) -> Session:
+#         """Create a new session record.
 
-        Args:
-            session_in: The data required to create a session.
+#         Args:
+#             session_in: The data required to create a session.
 
-        Returns:
-            The created Session object.
-        """
-        ...
+#         Returns:
+#             The created Session object.
+#         """
+#         ...
 
-    async def delete_session(self, session_id: int) -> bool:
-        """Delete a session by its unique ID.
+#     async def delete_session(self, session_id: int) -> bool:
+#         """Delete a session by its unique ID.
 
-        Args:
-            session_id: The integer ID of the session to delete.
+#         Args:
+#             session_id: The integer ID of the session to delete.
 
-        Returns:
-            True if deletion was successful, False otherwise.
-        """
-        ...
+#         Returns:
+#             True if deletion was successful, False otherwise.
+#         """
+#         ...
 
-    async def delete_all_user_sessions(self, user_id: int) -> int:
-        """Delete all sessions for a given user.
+#     async def delete_all_user_sessions(self, user_id: int) -> int:
+#         """Delete all sessions for a given user.
 
-        Args:
-            user_id: The integer ID of the user.
+#         Args:
+#             user_id: The integer ID of the user.
 
-        Returns:
-            The number of sessions deleted.
-        """
-        ...
+#         Returns:
+#             The number of sessions deleted.
+#         """
+#         ...
 
-    async def activate_session(self, session_id: int) -> bool:
-        """Activate a session by its ID."""
-        ...
+#     async def activate_session(self, session_id: int) -> bool:
+#         """Activate a session by its ID."""
+#         ...
 
-    async def deactivate_session(self, session_id: int) -> bool:
-        """Deactivate a session by its ID."""
-        ...
+#     async def deactivate_session(self, session_id: int) -> bool:
+#         """Deactivate a session by its ID."""
+#         ...
 
-    async def get_active_sessions(self, user_id: int) -> list[Session]:
-        """Get all active sessions for a user.
+#     async def get_active_sessions(self, user_id: int) -> list[Session]:
+#         """Get all active sessions for a user.
 
-        Args:
-            user_id: The integer ID of the user.
+#         Args:
+#             user_id: The integer ID of the user.
 
-        Returns:
-            A list of active Session objects.
-        """
-        ...
+#         Returns:
+#             A list of active Session objects.
+#         """
+#         ...
 
-    async def purge_expired_sessions(self) -> int:
-        """Delete all expired sessions."""
-        ...
+#     async def purge_expired_sessions(self) -> int:
+#         """Delete all expired sessions."""
+#         ...
 
-    async def update_session_activity(
-        self, session_id: int, ip_address: str, user_agent: str
-    ) -> bool:
-        """Update session activity info (IP, user agent)."""
-        ...
+#     async def update_session_activity(
+#         self, session_id: int, ip_address: str, user_agent: str
+#     ) -> bool:
+#         """Update session activity info (IP, user agent)."""
+#         ...
