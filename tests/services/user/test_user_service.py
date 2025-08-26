@@ -11,14 +11,14 @@ from pydantic import ValidationError
 async def test_register_user_success():
     # Arrange
     user_repo = AsyncMock()
-    user_repo.get_user_with_username.return_value = None
-    user_repo.get_user_with_email.return_value = None
-    user_repo.create_user.return_value = UserPublicResponse.model_validate({
-        "id": 1,  # changed from "user-id" to int
+    user_repo.get_by_username.return_value = None
+    user_repo.get_by_email.return_value = None
+    user_repo.create.return_value = {
+        "id": 1,
         "username": "testuser",
         "email": "test@example.com",
         "full_name": "Test User",
-    })
+    }
     hasher = MagicMock()
     hasher.hash.return_value = "hashed_pw"
 
@@ -35,17 +35,17 @@ async def test_register_user_success():
 
     # Assert
     assert isinstance(result, UserPublicResponse)
-    user_repo.get_user_with_username.assert_called_once_with("testuser")
-    user_repo.get_user_with_email.assert_called_once_with("test@example.com")
+    user_repo.get_by_username.assert_called_once_with("testuser")
+    user_repo.get_by_email.assert_called_once_with("test@example.com")
     hasher.hash.assert_called_once_with("pwtest@90")
-    user_repo.create_user.assert_called_once()
+    user_repo.create.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_register_user_duplicate_username():
     # Arrange
     user_repo = AsyncMock()
-    user_repo.get_user_with_username.return_value = MagicMock(id=1)  # id as int
+    user_repo.get_by_username.return_value = MagicMock(id=1)
     hasher = MagicMock()
     service = UserService(user_repo, hasher)
     user_data = UserCreate(
@@ -64,8 +64,8 @@ async def test_register_user_duplicate_username():
 async def test_register_user_duplicate_email():
     # Arrange
     user_repo = AsyncMock()
-    user_repo.get_user_with_username.return_value = None
-    user_repo.get_user_with_email.return_value = MagicMock(id=1)  # id as int
+    user_repo.get_by_username.return_value = None
+    user_repo.get_by_email.return_value = MagicMock(id=1)
     hasher = MagicMock()
     service = UserService(user_repo, hasher)
     user_data = UserCreate(
@@ -84,9 +84,9 @@ async def test_register_user_duplicate_email():
 async def test_register_user_creation_error():
     # Arrange
     user_repo = AsyncMock()
-    user_repo.get_user_with_username.return_value = None
-    user_repo.get_user_with_email.return_value = None
-    user_repo.create_user.return_value = None
+    user_repo.get_by_username.return_value = None
+    user_repo.get_by_email.return_value = None
+    user_repo.create.return_value = None
     hasher = MagicMock()
     hasher.hash.return_value = "hashed_pw"
 
@@ -165,18 +165,18 @@ def test_register_user_special_char_username():
 @pytest.mark.asyncio
 async def test_register_user_case_sensitive_username():
     user_repo = AsyncMock()
-    user_repo.get_user_with_username.side_effect = [
+    user_repo.get_by_username.side_effect = [
         None,
         {
-            "id": 2,  # changed from "user-id" to int
+            "id": 2,
             "username": "testuser",
             "email": "test2@example.com",
             "full_name": "Test User",
         },
     ]
-    user_repo.get_user_with_email.return_value = None
-    user_repo.create_user.return_value = {
-        "id": 1,  # changed from "user-id" to int
+    user_repo.get_by_email.return_value = None
+    user_repo.create.return_value = {
+        "id": 1,
         "username": "TestUser",
         "email": "test@example.com",
         "full_name": "Test User",
