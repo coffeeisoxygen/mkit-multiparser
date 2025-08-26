@@ -40,20 +40,18 @@ class UserService:
 
         try:
             # Cek apakah username atau email sudah ada
-            existing_user = await self.user_repo.get_user_with_username(
-                user_data.username
-            )
-            existing_email = await self.user_repo.get_user_with_email(user_data.email)
+            existing_user = await self.user_repo.get_by_username(user_data.username)
+            existing_email = await self.user_repo.get_by_email(user_data.email)
             _check_duplicate(existing_user, existing_email)
 
-            # Hash password sebelum menyimpan
-            hashed_password = self.hasher.hash(user_data.password)
-            user_data.password = hashed_password
+            # ✅ Transform Pydantic -> dict dengan modification
+            user_dict = user_data.model_dump()
+            user_dict["password"] = self.hasher.hash(user_data.password)
 
-            # Buat user baru
-            db_user = await self.user_repo.create(user_data.model_dump())
-            if isinstance(db_user, UserPublicResponse):
-                return db_user
+            # ✅ Repository nerima dict, return domain model
+            db_user = await self.user_repo.create(user_dict)
+
+            # ✅ Transform domain model -> response DTO
             return UserPublicResponse.model_validate(db_user)
 
         except UserDuplicateError:
