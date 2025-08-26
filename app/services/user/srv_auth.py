@@ -16,6 +16,7 @@ from app.exception import (
     UserPasswordGenericError,
 )
 from app.schemas.user import UserLoginResponse, UserPublicResponse
+from app.schemas.user.sch_user_base import UserInDB
 from app.schemas.user.sch_user_session import SessionCreate
 from app.schemas.user.sch_user_token import TokenResponse
 from app.services.session.srv_session import SessionService
@@ -61,7 +62,7 @@ class AuthService:
             raise UserPasswordGenericError("Password salah.")
         return user
 
-    def create_token(self, user) -> TokenResponse:
+    def create_token(self, user: UserInDB) -> TokenResponse:
         """Generate JWT token dari user object dan bungkus ke TokenResponse."""
         token_str = self.token_service.create_token(
             user_id=user.id,

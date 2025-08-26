@@ -30,7 +30,7 @@ class SessionInDB(SessionBase):
     """Schema representasi session di database (internal)."""
 
     id: int
-    token: str  # hanya internal
+    token: str
     ip_address: str
     user_agent: str
     created_at: datetime
