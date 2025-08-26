@@ -55,7 +55,6 @@ class UserService:
             return UserPublicResponse.model_validate(db_user)
 
         except UserDuplicateError:
-            # Biarkan bubble up, agar test bisa catch
             raise
         except ValidationError as e:
             logger.error(f"Validation error during user registration: {e}")

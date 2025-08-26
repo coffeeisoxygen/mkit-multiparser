@@ -6,7 +6,6 @@ from app.database.core import (
     DatabaseSessionManager,
 )
 
-# from app.database.repositories import *
 
 __all__ = [
     "get_db_session_manual_commit",
