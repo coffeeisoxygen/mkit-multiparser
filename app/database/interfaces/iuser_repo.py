@@ -8,7 +8,9 @@ class IUserRepository(IRepository[Db_User]):
     """Interface khusus user, extend CRUD dengan query spesifik."""
 
     @abstractmethod
-    async def get_by_username(self, username: str) -> Db_User | None: ...
+    async def get_by_username(self, username: str) -> Db_User | None:
+        raise NotImplementedError
 
     @abstractmethod
-    async def get_by_email(self, email: str) -> Db_User | None: ...
+    async def get_by_email(self, email: str) -> Db_User | None:
+        raise NotImplementedError
