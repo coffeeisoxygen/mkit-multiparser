@@ -63,3 +63,10 @@ class UserService:
         except Exception as e:
             logger.error(f"Unexpected error during user registration: {e}")
             raise UserCreationError("Gagal membuat user baru.") from e
+
+    async def get_user_by_id(self, user_id: int) -> UserPublicResponse | None:
+        """Ambil user berdasarkan ID."""
+        db_user = await self.user_repo.get_by_id(user_id)
+        if not db_user:
+            return None
+        return UserPublicResponse.model_validate(db_user)
